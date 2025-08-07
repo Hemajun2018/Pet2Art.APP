@@ -6,6 +6,7 @@ import Feature1 from "@/components/blocks/feature1";
 import Feature2 from "@/components/blocks/feature2";
 import Feature3 from "@/components/blocks/feature3";
 import Hero from "@/components/blocks/hero";
+import PetArtHero from "@/components/blocks/hero/PetArtHero";
 import Pricing from "@/components/blocks/pricing";
 import Showcase from "@/components/blocks/showcase";
 import Stats from "@/components/blocks/stats";
@@ -41,7 +42,7 @@ export default async function LandingPage({
 
   return (
     <>
-      {page.hero && <Hero hero={page.hero} />}
+      <PetArtHero />
       {page.branding && <Branding section={page.branding} />}
       {page.introduce && <Feature1 section={page.introduce} />}
       {page.benefit && <Feature2 section={page.benefit} />}
