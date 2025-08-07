@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "Ship Any AI SaaS Startups in hours | ShipAny",
-    "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups, Ship Fast with a variety of templates and components.",
-    "keywords": "ShipAny, AI SaaS Boilerplate, NextJS Boilerplate"
+    "title": "PetArt Studio - Transform Your Pet Into Stunning Art with AI",
+    "description": "Create professional artistic portraits of your beloved pets with AI technology. 50+ art styles, instant results, high-resolution downloads.",
+    "keywords": "pet art, pet portrait, AI pet art, dog portrait, cat portrait, pet painting, custom pet art, pet gift"
   },
   "user": {
     "sign_in": "Sign In",
@@ -10,18 +10,18 @@
     "credits": "Credits",
     "api_keys": "API Keys",
     "my_orders": "My Orders",
-    "user_center": "User Center",
-    "admin_system": "Admin System"
+    "user_center": "My Account",
+    "admin_system": "Admin Panel"
   },
   "sign_modal": {
-    "sign_in_title": "Sign In",
-    "sign_in_description": "Sign in to your account",
-    "sign_up_title": "Sign Up",
-    "sign_up_description": "Create an account",
+    "sign_in_title": "Welcome Back",
+    "sign_in_description": "Sign in to create more pet art",
+    "sign_up_title": "Get Started",
+    "sign_up_description": "Create your PetArt account",
     "email_title": "Email",
-    "email_placeholder": "Input your email here",
+    "email_placeholder": "Enter your email",
     "password_title": "Password",
-    "password_placeholder": "Input your password here",
+    "password_placeholder": "Enter your password",
     "forgot_password": "Forgot password?",
     "or": "Or",
     "continue": "Continue",
@@ -34,92 +34,92 @@
   },
   "my_orders": {
     "title": "My Orders",
-    "description": "orders paid with ShipAny.",
-    "no_orders": "No orders found",
-    "tip": "",
-    "activate_order": "Activate Order",
-    "actived": "Activated",
-    "join_discord": "Join Discord",
-    "read_docs": "Read Docs",
+    "description": "Your PetArt purchase history",
+    "no_orders": "No orders yet",
+    "tip": "Start creating pet art today!",
+    "activate_order": "Activate Credits",
+    "actived": "Active",
+    "join_discord": "Get Support",
+    "read_docs": "View Tutorial",
     "table": {
-      "order_no": "Order No",
+      "order_no": "Order #",
       "email": "Email",
-      "product_name": "Product Name",
+      "product_name": "Plan",
       "amount": "Amount",
-      "paid_at": "Paid At",
-      "github_username": "GitHub Username",
+      "paid_at": "Purchase Date",
+      "github_username": "Username",
       "status": "Status"
     }
   },
   "my_credits": {
     "title": "My Credits",
-    "left_tip": "left credits: {left_credits}",
-    "no_credits": "No credits records",
-    "recharge": "Recharge",
+    "left_tip": "Credits remaining: {left_credits}",
+    "no_credits": "No credit history",
+    "recharge": "Get More Credits",
     "table": {
-      "trans_no": "Trans No",
-      "trans_type": "Trans Type",
+      "trans_no": "Transaction #",
+      "trans_type": "Type",
       "credits": "Credits",
-      "updated_at": "Updated At",
+      "updated_at": "Date",
       "status": "Status"
     }
   },
   "api_keys": {
     "title": "API Keys",
-    "tip": "Please keep your apikey safe to avoid leaks",
-    "no_api_keys": "No API Keys",
-    "create_api_key": "Create API Key",
+    "tip": "Keep your API keys secure and never share them",
+    "no_api_keys": "No API keys yet",
+    "create_api_key": "Create New Key",
     "table": {
       "name": "Name",
-      "key": "Key",
-      "created_at": "Created At"
+      "key": "API Key",
+      "created_at": "Created"
     },
     "form": {
-      "name": "Name",
-      "name_placeholder": "API Key Name",
-      "submit": "Submit"
+      "name": "Key Name",
+      "name_placeholder": "Enter a name for this key",
+      "submit": "Create Key"
     }
   },
   "blog": {
-    "title": "Blog",
-    "description": "News, resources, and updates about ShipAny",
+    "title": "Pet Art Blog",
+    "description": "Tips, tutorials, and inspiration for creating amazing pet art",
     "read_more_text": "Read More"
   },
   "my_invites": {
-    "title": "My Invites",
-    "description": "View your invite records",
-    "no_invites": "No invite records found",
-    "my_invite_link": "My Invite Link",
-    "edit_invite_link": "Edit Invite Link",
-    "copy_invite_link": "Copy Invite Link",
-    "invite_code": "Invite Code",
-    "invite_tip": "Invite 1 friend to buy ShipAny, reward $50.",
-    "invite_balance": "Invite Reward Balance",
-    "total_invite_count": "Total Invite Count",
-    "total_paid_count": "Total Paid Count",
-    "total_award_amount": "Total Award Amount",
-    "update_invite_code": "Set Invite Code",
-    "update_invite_code_tip": "Input your custom invite code",
-    "update_invite_button": "Save",
-    "no_orders": "You can't invite others before you bought ShipAny",
-    "no_affiliates": "You're not allowed to invite others, please contact us to apply for permission.",
+    "title": "Refer Friends",
+    "description": "Share PetArt with friends and earn rewards",
+    "no_invites": "No referrals yet",
+    "my_invite_link": "Your Referral Link",
+    "edit_invite_link": "Edit Link",
+    "copy_invite_link": "Copy Link",
+    "invite_code": "Referral Code",
+    "invite_tip": "Earn 5 free credits for each friend who signs up!",
+    "invite_balance": "Referral Credits Earned",
+    "total_invite_count": "Total Referrals",
+    "total_paid_count": "Paying Referrals",
+    "total_award_amount": "Total Credits Earned",
+    "update_invite_code": "Set Referral Code",
+    "update_invite_code_tip": "Create your custom referral code",
+    "update_invite_button": "Save Code",
+    "no_orders": "Create your first pet art before referring friends",
+    "no_affiliates": "Referral program coming soon!",
     "table": {
-      "invite_time": "Invite Time",
-      "invite_user": "Invite User",
+      "invite_time": "Referred Date",
+      "invite_user": "Friend",
       "status": "Status",
-      "reward_percent": "Reward Percent",
-      "reward_amount": "Reward Amount",
+      "reward_percent": "Reward Rate",
+      "reward_amount": "Credits Earned",
       "pending": "Pending",
-      "completed": "Completed"
+      "completed": "Earned"
     }
   },
   "feedback": {
     "title": "Feedback",
-    "description": "We'd love to hear what went well or how we can improve the product experience.",
-    "submit": "Submit",
-    "loading": "Submitting...",
-    "contact_tip": "Other ways to contact us",
-    "rating_tip": "How do you feel about ShipAny?",
-    "placeholder": "Leave your words here..."
+    "description": "Help us improve PetArt! Share your experience or suggestions.",
+    "submit": "Send Feedback",
+    "loading": "Sending...",
+    "contact_tip": "Need help? Contact support",
+    "rating_tip": "How's your PetArt experience?",
+    "placeholder": "Tell us what you think..."
   }
 }
