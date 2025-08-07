@@ -30,10 +30,10 @@ export default function PetArtGenerator() {
 
   // 获取用户积分
   useEffect(() => {
-    if (user) {
+    if (session && user) {
       fetchUserCredits()
     }
-  }, [user])
+  }, [session, user])
 
   const fetchUserCredits = async () => {
     try {
@@ -43,7 +43,7 @@ export default function PetArtGenerator() {
       
       if (resp.ok) {
         const { data } = await resp.json()
-        setUserCredits(data.credits || 0)
+        setUserCredits(data.left_credits || 0)
       }
     } catch (error) {
       console.error("Failed to fetch user credits:", error)
@@ -165,11 +165,11 @@ export default function PetArtGenerator() {
   }
 
   return (
-    <section className="bg-background py-20">
+    <section className="py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            AI Pet Art Photo <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">Generator</span>
+          <h2 className="text-4xl md:text-6xl font-bold mb-6">
+            AI Pet Art Photo <span className="text-primary">Generator</span>
           </h2>
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto">Select a style template, upload your pet photo, and generate professional art in one click</p>
           {user && (
@@ -227,11 +227,8 @@ export default function PetArtGenerator() {
                             />
                             {template.tag && (
                               <Badge
-                                className={`absolute top-1 left-1 text-xs ${
-                                  template.tag === 'HOT' 
-                                    ? 'bg-red-500' 
-                                    : 'bg-green-500'
-                                } text-white`}
+                                variant={template.tag === 'HOT' ? 'destructive' : 'default'}
+                                className="absolute top-1 left-1 text-xs"
                               >
                                 {template.tag}
                               </Badge>
@@ -355,6 +352,25 @@ export default function PetArtGenerator() {
                   className="w-full h-20 px-3 py-2 border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
+
+              <Button 
+                onClick={handleGenerate}
+                disabled={!petImage || !selectedTemplate || isGenerating}
+                className="w-full bg-primary hover:bg-primary/90"
+                size="lg"
+              >
+                {isGenerating ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <span className="mr-2">✨</span>
+                    Generate Art Photo (1 credit)
+                  </>
+                )}
+              </Button>
             </CardContent>
           </Card>
 
@@ -367,7 +383,7 @@ export default function PetArtGenerator() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="relative border-2 border-dashed border-border rounded-lg p-6 min-h-[400px] flex items-center justify-center bg-muted/10">
+              <div className="relative border-2 border-dashed border-border rounded-lg p-6 min-h-[400px] flex items-center justify-center bg-muted/20">
                 {generatedImage ? (
                   <div className="relative">
                     <Image
@@ -388,37 +404,19 @@ export default function PetArtGenerator() {
                 )}
               </div>
 
-              <div className="flex gap-4 mt-6">
-                <Button 
-                  onClick={handleGenerate}
-                  disabled={!petImage || !selectedTemplate || isGenerating}
-                  className="flex-1"
-                  size="lg"
-                >
-                  {isGenerating ? (
-                    <>
-                      <span className="animate-spin mr-2">⏳</span>
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <span className="mr-2">✨</span>
-                      Generate Art Photo (1 credit)
-                    </>
-                  )}
-                </Button>
-                
-                {generatedImage && (
+              {generatedImage && (
+                <div className="mt-6">
                   <Button 
                     onClick={handleDownload}
                     variant="outline"
+                    className="w-full"
                     size="lg"
                   >
                     <span className="mr-2">💾</span>
                     Download Image
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
