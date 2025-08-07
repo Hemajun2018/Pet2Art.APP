@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Image from "next/image"
-import { petTemplates, templateCategories, getTemplatesByCategory, type PetTemplate } from "@/lib/petTemplates"
+import { getPreviewImagePath, type PetTemplate, type TemplateCategory } from "@/lib/petTemplates"
 import { generatePetArt, downloadImage } from "@/lib/petAiApi"
 import { useAppContext } from "@/contexts/app"
 import { useSession } from "next-auth/react"
@@ -27,6 +27,9 @@ export default function PetArtGenerator() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [showReferenceImage, setShowReferenceImage] = useState(true)
   const [userCredits, setUserCredits] = useState<number>(0)
+  const [templateCategories, setTemplateCategories] = useState<TemplateCategory[]>([])
+  const [templates, setTemplates] = useState<Record<string, PetTemplate[]>>({})
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(true)
 
   // 获取用户积分
   useEffect(() => {
@@ -34,6 +37,26 @@ export default function PetArtGenerator() {
       fetchUserCredits()
     }
   }, [session, user])
+
+  // 加载模板数据
+  useEffect(() => {
+    fetchTemplates()
+  }, [])
+
+  const fetchTemplates = async () => {
+    try {
+      const response = await fetch('/api/get-templates')
+      if (response.ok) {
+        const data = await response.json()
+        setTemplateCategories(data.categories)
+        setTemplates(data.templates)
+      }
+    } catch (error) {
+      console.error('Failed to load templates:', error)
+    } finally {
+      setIsLoadingTemplates(false)
+    }
+  }
 
   const fetchUserCredits = async () => {
     try {
@@ -191,27 +214,38 @@ export default function PetArtGenerator() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-                <TabsList className="w-full h-auto p-1 flex flex-wrap gap-1 justify-start">
+              {isLoadingTemplates ? (
+                <div className="flex items-center justify-center h-96">
+                  <div className="text-center">
+                    <div className="animate-spin text-4xl mb-4">⏳</div>
+                    <p className="text-muted-foreground">Loading templates...</p>
+                  </div>
+                </div>
+              ) : (
+                <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+                  <TabsList className="w-full h-auto p-1 flex flex-wrap gap-1 justify-start">
+                    {templateCategories.map((category) => (
+                      <TabsTrigger 
+                        key={category.id}
+                        value={category.id} 
+                        className="text-xs px-3 py-2"
+                      >
+                        {category.name}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  
                   {templateCategories.map((category) => (
-                    <TabsTrigger 
-                      key={category.id}
-                      value={category.id} 
-                      className="text-xs px-3 py-2"
-                    >
-                      {category.name}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                
-                {templateCategories.map((category) => (
-                  <TabsContent key={category.id} value={category.id} className="mt-4">
-                    <div className="grid grid-cols-3 gap-3 max-h-96 overflow-y-auto">
-                      {getTemplatesByCategory(category.id).map((template) => (
+                    <TabsContent key={category.id} value={category.id} className="mt-4">
+                      <div className="grid grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+                        {(category.id === 'all' 
+                          ? Object.values(templates).flat() 
+                          : templates[category.id] || []
+                        ).map((template, index) => (
                         <div 
-                          key={template.id} 
+                          key={`${template.category}-${index}`} 
                           className={`relative cursor-pointer transition-all duration-300 group ${
-                            selectedTemplate?.id === template.id 
+                            selectedTemplate?.image === template.image 
                               ? 'ring-2 ring-primary' 
                               : 'hover:ring-1 hover:ring-primary/50'
                           }`}
@@ -233,7 +267,7 @@ export default function PetArtGenerator() {
                                 {template.tag}
                               </Badge>
                             )}
-                            {selectedTemplate?.id === template.id && (
+                            {selectedTemplate?.image === template.image && (
                               <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                                 <div className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center">
                                   ✓
@@ -248,6 +282,7 @@ export default function PetArtGenerator() {
                   </TabsContent>
                 ))}
               </Tabs>
+            )}
             </CardContent>
           </Card>
 
@@ -394,6 +429,34 @@ export default function PetArtGenerator() {
                       className="object-contain rounded-lg"
                       unoptimized
                     />
+                  </div>
+                ) : selectedTemplate ? (
+                  <div className="relative">
+                    <Image
+                      src={getPreviewImagePath(selectedTemplate.image)}
+                      alt={`${selectedTemplate.name} preview`}
+                      width={400}
+                      height={400}
+                      className="object-contain rounded-lg"
+                      unoptimized
+                      onError={(e) => {
+                        // 如果预览图不存在，显示默认内容
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                        target.parentElement!.innerHTML = `
+                          <div class="text-center text-muted-foreground">
+                            <div class="text-6xl mb-4">✨</div>
+                            <p class="text-lg">Template selected: ${selectedTemplate.name}</p>
+                            <p class="text-sm mt-2">Preview will be available soon</p>
+                          </div>
+                        `
+                      }}
+                    />
+                    <div className="absolute bottom-2 left-2 right-2">
+                      <Badge variant="secondary" className="w-full justify-center">
+                        Preview: {selectedTemplate.name}
+                      </Badge>
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center text-muted-foreground">
