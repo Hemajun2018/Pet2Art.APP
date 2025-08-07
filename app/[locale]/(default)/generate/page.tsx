@@ -1,9 +1,6 @@
-import PetArtGenerator from "@/components/blocks/PhotoEditor"
+import { redirect } from "next/navigation"
 
 export default function GeneratePage() {
-  return (
-    <>
-      <PetArtGenerator />
-    </>
-  )
+  redirect("/#generate-section")
+  return null
 }

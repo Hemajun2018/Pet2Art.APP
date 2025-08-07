@@ -7,6 +7,7 @@ import Feature2 from "@/components/blocks/feature2";
 import Feature3 from "@/components/blocks/feature3";
 import Hero from "@/components/blocks/hero";
 import PetArtHero from "@/components/blocks/hero/PetArtHero";
+import PhotoEditor from "@/components/blocks/PhotoEditor";
 import Pricing from "@/components/blocks/pricing";
 import Showcase from "@/components/blocks/showcase";
 import Stats from "@/components/blocks/stats";
@@ -43,6 +44,9 @@ export default async function LandingPage({
   return (
     <>
       <PetArtHero />
+      <div id="generate-section" className="scroll-mt-20">
+        <PhotoEditor />
+      </div>
       {page.branding && <Branding section={page.branding} />}
       {page.introduce && <Feature1 section={page.introduce} />}
       {page.benefit && <Feature2 section={page.benefit} />}

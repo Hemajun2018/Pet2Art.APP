@@ -97,7 +97,7 @@ export default function PetArtGenerator() {
 
   const handleGenerate = async () => {
     if (!petImage || !selectedTemplate) {
-      alert("请上传宠物照片并选择一个模板")
+      alert("Please upload a pet photo and select a template")
       return
     }
 
@@ -109,7 +109,7 @@ export default function PetArtGenerator() {
 
     // 检查用户积分
     if (userCredits < 1) {
-      alert("积分不足，请前往充值页面购买积分")
+      alert("Insufficient credits. Please purchase credits on the pricing page")
       router.push("/pricing")
       return
     }
@@ -131,7 +131,7 @@ export default function PetArtGenerator() {
       
       const fullCustomPrompt = customPrompt 
         ? `${customPrompt}${ratioPrompt}` 
-        : ratioPrompt.slice(1)
+        : ratioPrompt.slice(2)
 
       const resultUrl = await generatePetArt(
         petImage,
@@ -147,7 +147,7 @@ export default function PetArtGenerator() {
       // TODO: 保存生成记录到数据库
       
     } catch (error) {
-      alert("生成失败，请重试")
+      alert("Generation failed. Please try again")
       console.error(error)
     } finally {
       setIsGenerating(false)
@@ -159,7 +159,7 @@ export default function PetArtGenerator() {
       try {
         await downloadImage(generatedImage, `pet-art-${Date.now()}.png`)
       } catch (error) {
-        alert("下载失败，请重试")
+        alert("Download failed. Please try again")
       }
     }
   }
@@ -169,13 +169,13 @@ export default function PetArtGenerator() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            AI宠物艺术照 <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">生成器</span>
+            AI Pet Art Photo <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">Generator</span>
           </h2>
-          <p className="text-muted-foreground text-xl max-w-2xl mx-auto">选择风格模板，上传宠物照片，一键生成专属艺术照</p>
+          <p className="text-muted-foreground text-xl max-w-2xl mx-auto">Select a style template, upload your pet photo, and generate professional art in one click</p>
           {user && (
             <div className="mt-4">
               <Badge variant="secondary" className="text-lg px-4 py-2">
-                剩余积分: {userCredits}
+                Credits remaining: {userCredits}
               </Badge>
             </div>
           )}
@@ -187,12 +187,12 @@ export default function PetArtGenerator() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span>🎨</span>
-                选择风格
+                Select Style
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-                <TabsList className="w-full h-auto p-1 flex flex-wrap gap-1">
+                <TabsList className="w-full h-auto p-1 flex flex-wrap gap-1 justify-start">
                   {templateCategories.map((category) => (
                     <TabsTrigger 
                       key={category.id}
@@ -259,12 +259,12 @@ export default function PetArtGenerator() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span>📸</span>
-                上传照片
+                Upload Photo
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block font-semibold mb-2">宠物照片</label>
+                <label className="block font-semibold mb-2">Pet Photo</label>
                 <div 
                   className="relative border-2 border-dashed border-border rounded-lg p-6 min-h-[300px] flex items-center justify-center"
                   onDrop={handleDrop}
@@ -313,7 +313,7 @@ export default function PetArtGenerator() {
                   ) : (
                     <div className="text-center text-muted-foreground">
                       <div className="text-4xl mb-2">📷</div>
-                      <p>点击或拖拽上传</p>
+                      <p>Click or drag to upload</p>
                     </div>
                   )}
                   {!petImagePreview && (
@@ -328,7 +328,7 @@ export default function PetArtGenerator() {
               </div>
 
               <div>
-                <label className="block font-semibold mb-2">输出比例</label>
+                <label className="block font-semibold mb-2">Output Ratio</label>
                 <div className="grid grid-cols-3 gap-2">
                   {ratios.map((ratio) => (
                     <button
@@ -347,11 +347,11 @@ export default function PetArtGenerator() {
               </div>
 
               <div>
-                <label className="block font-semibold mb-2">自定义要求（可选）</label>
+                <label className="block font-semibold mb-2">Custom Requirements (Optional)</label>
                 <textarea
                   value={customPrompt}
                   onChange={(e) => setCustomPrompt(e.target.value)}
-                  placeholder="例如：添加圣诞帽，背景换成雪景..."
+                  placeholder="E.g., Add a Christmas hat, change background to snow scene..."
                   className="w-full h-20 px-3 py-2 border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -363,7 +363,7 @@ export default function PetArtGenerator() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span>✨</span>
-                生成结果
+                Generated Result
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -382,8 +382,8 @@ export default function PetArtGenerator() {
                 ) : (
                   <div className="text-center text-muted-foreground">
                     <div className="text-6xl mb-4">🎨</div>
-                    <p className="text-lg">生成的艺术照将在这里显示</p>
-                    <p className="text-sm mt-2">选择模板并上传照片后点击生成</p>
+                    <p className="text-lg">Generated art photo will appear here</p>
+                    <p className="text-sm mt-2">Select a template and upload a photo, then click generate</p>
                   </div>
                 )}
               </div>
@@ -398,12 +398,12 @@ export default function PetArtGenerator() {
                   {isGenerating ? (
                     <>
                       <span className="animate-spin mr-2">⏳</span>
-                      生成中...
+                      Generating...
                     </>
                   ) : (
                     <>
                       <span className="mr-2">✨</span>
-                      生成艺术照 (消耗1积分)
+                      Generate Art Photo (1 credit)
                     </>
                   )}
                 </Button>
@@ -415,7 +415,7 @@ export default function PetArtGenerator() {
                     size="lg"
                   >
                     <span className="mr-2">💾</span>
-                    下载图片
+                    Download Image
                   </Button>
                 )}
               </div>

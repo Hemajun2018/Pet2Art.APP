@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
-import Link from "next/link"
 import { useState, useEffect } from "react"
 
 const allHeroImages = [
@@ -50,7 +49,7 @@ export default function PetArtHero() {
     return () => clearInterval(interval)
   }, [])
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 overflow-hidden">
+    <section className="relative min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
@@ -59,7 +58,7 @@ export default function PetArtHero() {
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
               Create Beautiful
               <br />
-              <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
                 Artistic Photos
               </span>
               <br />
@@ -80,23 +79,24 @@ export default function PetArtHero() {
             </div>
 
             {/* Description */}
-            <p className="text-lg text-gray-600 max-w-md mb-8">
+            <p className="text-lg text-muted-foreground max-w-md mb-8">
               Transform your pet's photos into stunning artistic portraits with AI. 
-              Choose from various art styles and create unique masterpieces in seconds.
+              Choose from various art styles and create unique masterpieces.
             </p>
 
             {/* CTA Button */}
-            <Link href="/generate">
-              <Button 
-                size="lg" 
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 text-lg rounded-full shadow-lg transition-all duration-200 hover:shadow-xl font-semibold"
-              >
-                Try it free
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground px-8 py-4 text-lg rounded-full shadow-lg transition-all duration-200 hover:shadow-xl font-semibold"
+              onClick={() => {
+                document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+            >
+              Try it free
+            </Button>
 
             {/* Social Proof */}
-            <div className="flex items-center gap-6 text-sm text-gray-500 mt-8">
+            <div className="flex items-center gap-6 text-sm text-muted-foreground mt-8">
               <span className="flex items-center gap-1">
                 <span className="text-yellow-500">★★★★★</span>
                 4.9/5
@@ -136,7 +136,7 @@ export default function PetArtHero() {
                     />
                     {currentImages[1].isOriginal && (
                       <div className="absolute bottom-4 left-4">
-                        <Badge className="bg-yellow-400 text-black px-3 py-1 text-sm font-medium shadow-lg">
+                        <Badge className="bg-primary text-primary-foreground px-3 py-1 text-sm font-medium shadow-lg">
                           Original
                         </Badge>
                       </div>
@@ -180,9 +180,9 @@ export default function PetArtHero() {
               </div>
 
               {/* Decorative elements */}
-              <div className="absolute top-1/4 -left-4 w-8 h-8 bg-yellow-400 rounded-full opacity-80 animate-pulse"></div>
-              <div className="absolute bottom-1/3 -right-4 w-6 h-6 bg-blue-500 rounded-full opacity-60 animate-pulse" style={{ animationDelay: "0.3s" }}></div>
-              <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-green-400 rounded-full opacity-70 animate-pulse" style={{ animationDelay: "0.7s" }}></div>
+              <div className="absolute top-1/4 -left-4 w-8 h-8 bg-primary rounded-full opacity-80 animate-pulse"></div>
+              <div className="absolute bottom-1/3 -right-4 w-6 h-6 bg-primary/60 rounded-full opacity-60 animate-pulse" style={{ animationDelay: "0.3s" }}></div>
+              <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-accent rounded-full opacity-70 animate-pulse" style={{ animationDelay: "0.7s" }}></div>
               
               {/* Carousel Indicators */}
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
@@ -198,8 +198,8 @@ export default function PetArtHero() {
                     }}
                     className={`w-2 h-2 rounded-full transition-all duration-300 ${
                       currentGroup === index 
-                        ? 'w-8 bg-purple-600' 
-                        : 'bg-gray-400 hover:bg-gray-600'
+                        ? 'w-8 bg-primary' 
+                        : 'bg-muted-foreground/40 hover:bg-muted-foreground/60'
                     }`}
                     aria-label={`Go to image group ${index + 1}`}
                   />

@@ -24,32 +24,32 @@ export async function generatePetArt(
 ): Promise<string> {
   const formData = new FormData()
   
-  // 获取模板图片并添加为第一张图片（图一）
+  // Get template image and add it as the first image
   const templateResponse = await fetch(templateImageUrl)
   const templateBlob = await templateResponse.blob()
   const templateFile = new File([templateBlob], 'template.jpg', { type: 'image/jpeg' })
   formData.append('image', templateFile)
   
-  // 添加用户宠物照片为第二张图片（图二）
+  // Add user's pet photo as the second image
   formData.append('image', petImageFile)
   
-  // 设置提示词：把图一中的宠物替换成图二中的宠物想象，服装和背景保持不变
-  const basePrompt = '把图一中的宠物替换成图二中的宠物想象，服装和背景保持不变'
-  const prompt = customPrompt ? `${basePrompt}。${customPrompt}` : basePrompt
+  // Set prompt: Replace the pet in image 1 with the pet from image 2, keeping the clothing and background unchanged
+  const basePrompt = 'Replace the pet in the first image with the pet from the second image, keeping the clothing, style, and background unchanged'
+  const prompt = customPrompt ? `${basePrompt}. ${customPrompt}` : basePrompt
   
-  // 调试信息
-  console.log("API接收到的customPrompt:", customPrompt)
-  console.log("最终发送给AI的prompt:", prompt)
+  // Debug info
+  console.log("Custom prompt received:", customPrompt)
+  console.log("Final prompt sent to AI:", prompt)
   
   formData.append('prompt', prompt)
   
-  // 其他参数
+  // Other parameters
   formData.append('n', '1')
   formData.append('response_format', 'url')
   formData.append('model', 'gpt-4o-image')
   formData.append('user', '')
   
-  // 添加尺寸参数（如果指定了比例）
+  // Add size parameter (if aspect ratio is specified)
   if (aspectRatio && aspectRatio !== 'Auto') {
     const sizeMap = {
       '1:1': '1024x1024',
@@ -61,7 +61,7 @@ export async function generatePetArt(
     const size = sizeMap[aspectRatio as keyof typeof sizeMap]
     if (size) {
       formData.append('size', size)
-      console.log("设置图片尺寸:", size)
+      console.log("Setting image size:", size)
     }
   }
 
@@ -76,7 +76,7 @@ export async function generatePetArt(
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`API请求失败: ${response.status} ${response.statusText} - ${errorText}`)
+      throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`)
     }
 
     const data: ApiResponse = await response.json()
@@ -84,10 +84,10 @@ export async function generatePetArt(
     if (data.data && data.data.length > 0) {
       return data.data[0].url
     } else {
-      throw new Error('API返回数据格式错误')
+      throw new Error('API returned invalid data format')
     }
   } catch (error) {
-    console.error('生成宠物艺术照失败:', error)
+    console.error('Failed to generate pet art:', error)
     throw error
   }
 }
@@ -105,7 +105,7 @@ export async function downloadImage(imageUrl: string, filename: string): Promise
     document.body.removeChild(link)
     URL.revokeObjectURL(link.href)
   } catch (error) {
-    console.error('下载图片失败:', error)
+    console.error('Failed to download image:', error)
     throw error
   }
 }
