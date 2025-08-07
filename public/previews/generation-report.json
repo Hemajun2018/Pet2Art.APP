@@ -1,0 +1,20 @@
+{
+  "total": 12,
+  "success": [
+    "cat-cartoon-2",
+    "cat-cartoon-9",
+    "cat-cartoon-10",
+    "cat-cartoon-11"
+  ],
+  "failed": [],
+  "skipped": [
+    "ai-portrait",
+    "corgi-photo-2",
+    "fashion-portrait",
+    "gongbi-bichon-1",
+    "gongbi-bichon-2",
+    "gongbi-bichon-6",
+    "gongbi-bichon-10",
+    "cat-cartoon-1"
+  ]
+}
