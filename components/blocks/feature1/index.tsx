@@ -11,11 +11,13 @@ export default function Feature1({ section }: { section: SectionType }) {
       <div className="container">
         <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
           {section.image && (
-            <img
-              src={section.image?.src}
-              alt="placeholder hero"
-              className="max-h-full w-full rounded-md object-cover"
-            />
+            <div className="flex items-center justify-center">
+              <img
+                src={section.image?.src}
+                alt="placeholder hero"
+                className="max-h-full w-[70%] rounded-md object-cover"
+              />
+            </div>
           )}
           <div className="flex flex-col lg:text-left">
             {section.title && (

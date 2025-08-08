@@ -113,11 +113,11 @@ export default function Feature2({ section }: { section: SectionType }) {
               <CarouselContent>
                 {section.items?.map((item, i) => (
                   <CarouselItem key={i}>
-                    <div>
+                    <div className="flex items-center justify-center h-full">
                       <img
                         src={item.image?.src}
                         alt={item.image?.alt || item.title}
-                        className="max-h-auto w-full object-cover lg:max-h-none rounded-md"
+                        className="max-h-auto w-[70%] object-cover lg:max-h-none rounded-md"
                       />
                     </div>
                   </CarouselItem>

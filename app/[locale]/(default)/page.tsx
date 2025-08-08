@@ -10,7 +10,6 @@ import PetArtHero from "@/components/blocks/hero/PetArtHero";
 import PhotoEditor from "@/components/blocks/PhotoEditor";
 import Pricing from "@/components/blocks/pricing";
 import Showcase from "@/components/blocks/showcase";
-import Stats from "@/components/blocks/stats";
 import Testimonial from "@/components/blocks/testimonial";
 import { getLandingPage } from "@/services/page";
 
@@ -53,7 +52,6 @@ export default async function LandingPage({
       {page.usage && <Feature3 section={page.usage} />}
       {page.feature && <Feature section={page.feature} />}
       {page.showcase && <Showcase section={page.showcase} />}
-      {page.stats && <Stats section={page.stats} />}
       {page.pricing && <Pricing pricing={page.pricing} />}
       {page.testimonial && <Testimonial section={page.testimonial} />}
       {page.faq && <FAQ section={page.faq} />}

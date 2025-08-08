@@ -23,7 +23,7 @@ const allHeroImages = [
   { src: "/hero/15.avif", alt: "Pet Portrait 15", isOriginal: false }
 ]
 
-const styles = ["Vintage", "Renaissance", "Painting"]
+const styles = ["AI Powered", "High Quality", "Easy to Use"]
 
 export default function PetArtHero() {
   const [currentGroup, setCurrentGroup] = useState(0)
@@ -58,10 +58,10 @@ export default function PetArtHero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="order-2 lg:order-1 flex flex-col justify-start pt-8">
+          <div className="order-2 lg:order-1 flex flex-col justify-start pt-2">
             {/* Main Heading */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-2 leading-[1.1]">
-              Create Beautiful
+              Create Amazing
             </h1>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-2 leading-[1.1]">
               <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
@@ -106,12 +106,20 @@ export default function PetArtHero() {
 
             {/* Social Proof */}
             <div className="flex items-center gap-5 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <span className="text-yellow-500 text-base">★★★★★</span>
-                <span className="font-medium">4.9/5</span>
+              <span className="flex items-center gap-2">
+                <span className="text-primary">✨</span>
+                <span>Free to try</span>
               </span>
               <span>•</span>
-              <span>10,000+ happy pet owners</span>
+              <span className="flex items-center gap-2">
+                <span>🎨</span>
+                <span>Multiple art styles</span>
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-2">
+                <span>💎</span>
+                <span>Stunning art effects</span>
+              </span>
             </div>
           </div>
 

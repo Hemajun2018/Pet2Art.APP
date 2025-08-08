@@ -87,7 +87,7 @@
     "label": "How It Works",
     "description": "Create professional artistic portraits of your pets in just 3 simple steps. No artistic skills required!",
     "image": {
-      "src": "/imgs/features/1.png"
+      "src": "/howtouse/Smart Scholar — Corgi.jpg"
     },
     "items": [
       {
@@ -118,7 +118,7 @@
         "description": "Create stunning portraits worthy of any gallery. Perfect for home decor or special gifts.",
         "icon": "RiArtboardLine",
         "image": {
-          "src": "/imgs/features/2.png"
+          "src": "/why/Urban Style.jpg"
         }
       },
       {
@@ -126,7 +126,7 @@
         "description": "No waiting weeks for commissioned art. Get your pet portrait in seconds with AI technology.",
         "icon": "RiTimeLine",
         "image": {
-          "src": "/imgs/features/3.png"
+          "src": "/why/Urban Style.jpg"
         }
       },
       {
@@ -134,7 +134,7 @@
         "description": "Professional pet portraits at a fraction of traditional artist costs. Try it free today!",
         "icon": "RiPriceTag3Line",
         "image": {
-          "src": "/imgs/features/4.png"
+          "src": "/why/Urban Style.jpg"
         }
       }
     ]
@@ -195,9 +195,9 @@
         "icon": "RiImageLine"
       },
       {
-        "title": "Lightning Fast",
-        "description": "Get your custom pet portrait in seconds, not weeks. Instant satisfaction guaranteed.",
-        "icon": "RiFlashlightLine"
+        "title": "Cost-Effective",
+        "description": "Professional pet portraits at a fraction of the cost. Others charge $9+ per image, we offer better quality for less.",
+        "icon": "RiPriceTag3Line"
       },
       {
         "title": "Safe & Secure",
@@ -205,9 +205,9 @@
         "icon": "RiShieldCheckLine"
       },
       {
-        "title": "Money-Back Guarantee",
-        "description": "Not happy with your portrait? We offer a 100% satisfaction guarantee.",
-        "icon": "RiRefundLine"
+        "title": "Fully Personalized",
+        "description": "Each portrait is uniquely generated based on your pet's features. No templates, just pure AI creativity.",
+        "icon": "RiUserHeartLine"
       },
       {
         "title": "Perfect Gifts",

@@ -196,18 +196,11 @@ export default function PetArtGenerator() {
             AI Pet Art Photo <span className="text-primary">Generator</span>
           </h2>
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto">Select a style template, upload your pet photo, and generate professional art in one click</p>
-          {user && (
-            <div className="mt-4">
-              <Badge variant="secondary" className="text-lg px-4 py-2">
-                Credits remaining: {userCredits}
-              </Badge>
-            </div>
-          )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
           {/* 模板选择 */}
-          <Card className="lg:col-span-4">
+          <Card className="lg:col-span-5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span>🎨</span>
@@ -224,12 +217,12 @@ export default function PetArtGenerator() {
                 </div>
               ) : (
                 <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-                  <div className="flex flex-wrap gap-2 p-1 mb-4">
+                  <div className="flex flex-wrap gap-1.5 p-1 mb-4">
                     {templateCategories.map((category) => (
                       <button
                         key={category.id}
                         onClick={() => setSelectedCategory(category.id)}
-                        className={`px-4 py-2 text-sm rounded-lg transition-all ${
+                        className={`px-3 py-1.5 text-xs rounded-lg transition-all ${
                           selectedCategory === category.id
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted hover:bg-muted/80'
@@ -242,7 +235,7 @@ export default function PetArtGenerator() {
                   
                   {templateCategories.map((category) => (
                     <TabsContent key={category.id} value={category.id} className="mt-4">
-                      <div className="grid grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+                      <div className="grid grid-cols-4 gap-2 max-h-96 overflow-y-auto">
                         {(category.id === 'all' 
                           ? Object.values(templates).flat() 
                           : templates[category.id] || []
@@ -445,7 +438,7 @@ export default function PetArtGenerator() {
           </Card>
 
           {/* 生成结果 */}
-          <Card className="lg:col-span-5">
+          <Card className="lg:col-span-4">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span>✨</span>
@@ -487,9 +480,18 @@ export default function PetArtGenerator() {
                         `
                       }}
                     />
+                    <button
+                      onClick={() => setSelectedTemplate(null)}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-destructive/90 transition-colors z-10"
+                    >
+                      ✕
+                    </button>
                     <div className="absolute bottom-2 left-2 right-2">
                       <Badge variant="secondary" className="w-full justify-center">
-                        Preview: {selectedTemplate.name}
+                        Preview: {(() => {
+                          const dashIndex = selectedTemplate.name.indexOf(' — ')
+                          return dashIndex > -1 ? selectedTemplate.name.substring(0, dashIndex) : selectedTemplate.name
+                        })()}
                       </Badge>
                     </div>
                   </div>
