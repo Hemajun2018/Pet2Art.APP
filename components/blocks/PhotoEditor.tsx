@@ -312,11 +312,12 @@ export default function PetArtGenerator() {
                         className="object-cover rounded-lg max-w-full max-h-[280px]"
                       />
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation()
                           setPetImage(null)
                           setPetImagePreview("")
                         }}
-                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-destructive/90 transition-colors z-10"
                       >
                         ✕
                       </button>
@@ -334,10 +335,9 @@ export default function PetArtGenerator() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          e.preventDefault()
                           setShowReferenceImage(false)
                         }}
-                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-destructive/90 transition-colors z-10"
                       >
                         ✕
                       </button>

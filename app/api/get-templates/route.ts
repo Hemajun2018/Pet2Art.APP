@@ -44,14 +44,10 @@ export async function GET() {
         templateData.templates[category] = images.map(image => {
           // 从文件名生成显示名称
           const nameWithoutExt = path.basename(image, path.extname(image))
-          const displayName = nameWithoutExt
-            .replace(/-p$/i, '') // 移除预览后缀
-            .replace(/[_-]/g, ' ') // 替换下划线和横线为空格
-            .replace(/\d+$/, '') // 移除末尾的数字
-            .trim()
+          // 保留原始名称，不做额外处理
           
           return {
-            name: displayName || nameWithoutExt,
+            name: nameWithoutExt,
             image: `/templates/${category}/${image}`,
             category: category,
             // 根据文件名判断标签

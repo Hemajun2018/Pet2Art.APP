@@ -17,14 +17,17 @@ public/
 ```
 
 ## 命名规则
-预览图的命名规则：在原模板文件名后添加 `-p` 后缀
+预览图的命名规则：只保留模板文件名中破折号（—）前的风格意象部分
 
 ### 示例：
-- **模板图片路径：** `/templates/photography/Corgi Photo.jpg`
-- **预览图片路径：** `/previews/photography/Corgi Photo-p.jpg`
+- **模板图片路径：** `/templates/photography/Military General — Corgi.jpg`
+- **预览图片路径：** `/previews/photography/Military General.jpg`
 
-- **模板图片路径：** `/templates/gongbi/工笔风比熊合集_1_四只脚宠物摄影_来自小红书网页版.jpg`
-- **预览图片路径：** `/previews/gongbi/工笔风比熊合集_1_四只脚宠物摄影_来自小红书网页版-p.jpg`
+- **模板图片路径：** `/templates/gongbi/Serene Bamboo — Bichon Frisé.jpg`
+- **预览图片路径：** `/previews/gongbi/Serene Bamboo.jpg`
+
+- **模板图片路径：** `/templates/cute/Smart Scholar — Corgi.jpg`
+- **预览图片路径：** `/previews/cute/Smart Scholar.jpg`
 
 ## 使用步骤
 1. 为每个模板准备对应的预览图（生成效果图）
@@ -48,7 +51,9 @@ for file in templates/*/*.{jpg,png}; do
   preview_dir=${dir/templates/previews}
   name="${filename%.*}"
   ext="${filename##*.}"
+  # 提取破折号前的部分作为预览图名称
+  preview_name=$(echo "$name" | sed 's/ — .*//')
   mkdir -p "$preview_dir"
-  # cp "$file" "$preview_dir/${name}-p.$ext"  # 临时复制，后续替换为真实预览图
+  # cp "$file" "$preview_dir/${preview_name}.$ext"  # 临时复制，后续替换为真实预览图
 done
 ```

@@ -27,7 +27,7 @@ public/
 │
 └── previews/          # 预览图文件夹（可选）
     └── [对应分类]/
-        └── [图片名]-p.[扩展名]
+        └── [风格意象].[扩展名]
 ```
 
 ## 📝 使用步骤
@@ -46,8 +46,8 @@ mkdir public/previews/你的新分类
 
 ### 3. 命名建议
 - **分类文件夹**：使用英文，如 `fantasy`, `realistic`, `anime`
-- **图片文件**：任意命名都可以，系统会自动处理
-- **预览图**：原图名 + `-p` 后缀
+- **模板图片**：建议格式为 `风格意象 — 宠物品种.jpg`
+- **预览图**：只保留风格意象部分，如 `风格意象.jpg`
 
 ## 🎯 示例
 
@@ -61,17 +61,17 @@ mkdir public/previews/你的新分类
 2. 放入图片：
    ```
    public/templates/fantasy/
-   ├── dream-cat.jpg
-   ├── magic-dog.png
-   └── fairy-pet.jpg
+   ├── Dream Castle — Persian Cat.jpg
+   ├── Magic Forest — Golden Retriever.png
+   └── Fairy Tale — Poodle.jpg
    ```
 
 3. （可选）添加预览图：
    ```
    public/previews/fantasy/
-   ├── dream-cat-p.jpg
-   ├── magic-dog-p.png
-   └── fairy-pet-p.jpg
+   ├── Dream Castle.jpg
+   ├── Magic Forest.png
+   └── Fairy Tale.jpg
    ```
 
 **完成！** 刷新页面就能看到新分类和模板了。
