@@ -74,10 +74,11 @@ export default function PetArtGenerator() {
   }
 
   const ratios = [
-    { id: "Auto", label: "Auto", description: "Auto ratio" },
+    { id: "Auto", label: "Auto", description: "Default 3:4" },
     { id: "1:1", label: "1:1", description: "Square" },
-    { id: "4:3", label: "4:3", description: "Landscape" },
     { id: "3:4", label: "3:4", description: "Portrait" },
+    { id: "4:3", label: "4:3", description: "Landscape" },
+    
     { id: "16:9", label: "16:9", description: "Widescreen" },
     { id: "9:16", label: "9:16", description: "Mobile" }
   ]
@@ -223,17 +224,21 @@ export default function PetArtGenerator() {
                 </div>
               ) : (
                 <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-                  <TabsList className="w-full h-auto p-1 flex flex-wrap gap-1 justify-start">
+                  <div className="flex flex-wrap gap-2 p-1 mb-4">
                     {templateCategories.map((category) => (
-                      <TabsTrigger 
+                      <button
                         key={category.id}
-                        value={category.id} 
-                        className="text-xs px-3 py-2"
+                        onClick={() => setSelectedCategory(category.id)}
+                        className={`px-4 py-2 text-sm rounded-lg transition-all ${
+                          selectedCategory === category.id
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted hover:bg-muted/80'
+                        }`}
                       >
                         {category.name}
-                      </TabsTrigger>
+                      </button>
                     ))}
-                  </TabsList>
+                  </div>
                   
                   {templateCategories.map((category) => (
                     <TabsContent key={category.id} value={category.id} className="mt-4">
@@ -362,19 +367,49 @@ export default function PetArtGenerator() {
               <div>
                 <label className="block font-semibold mb-2">Output Ratio</label>
                 <div className="grid grid-cols-3 gap-2">
-                  {ratios.map((ratio) => (
-                    <button
-                      key={ratio.id}
-                      onClick={() => setSelectedRatio(ratio.id)}
-                      className={`px-3 py-2 rounded-lg border transition-all ${
-                        selectedRatio === ratio.id 
-                          ? 'bg-primary text-primary-foreground border-primary' 
-                          : 'bg-background border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <div className="text-sm font-medium">{ratio.label}</div>
-                    </button>
-                  ))}
+                  {ratios.map((ratio) => {
+                    // Calculate visual rectangle dimensions based on ratio
+                    const getRectDimensions = (ratioId: string) => {
+                      switch(ratioId) {
+                        case "Auto":
+                        case "3:4": return { width: 18, height: 24 }
+                        case "4:3": return { width: 24, height: 18 }
+                        case "1:1": return { width: 20, height: 20 }
+                        case "16:9": return { width: 28, height: 16 }
+                        case "9:16": return { width: 16, height: 28 }
+                        default: return { width: 18, height: 24 }
+                      }
+                    }
+                    const dims = getRectDimensions(ratio.id)
+                    
+                    return (
+                      <button
+                        key={ratio.id}
+                        onClick={() => setSelectedRatio(ratio.id)}
+                        className={`p-2 rounded-lg border transition-all flex flex-col items-center justify-center gap-1.5 min-h-[70px] ${
+                          selectedRatio === ratio.id 
+                            ? 'bg-primary/10 border-primary ring-2 ring-primary/20' 
+                            : 'bg-background border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <div 
+                          className={`border-2 ${
+                            selectedRatio === ratio.id ? 'border-primary' : 'border-muted-foreground'
+                          }`}
+                          style={{ 
+                            width: `${dims.width}px`, 
+                            height: `${dims.height}px`,
+                            borderRadius: '2px'
+                          }}
+                        />
+                        <div className={`text-xs font-medium ${
+                          selectedRatio === ratio.id ? 'text-primary' : 'text-foreground'
+                        }`}>
+                          {ratio.label}
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 

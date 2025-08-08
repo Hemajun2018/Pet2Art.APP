@@ -50,20 +50,19 @@ export async function generatePetArt(
   formData.append('user', '')
   
   // Add size parameter (if aspect ratio is specified)
-  if (aspectRatio && aspectRatio !== 'Auto') {
-    const sizeMap = {
-      '1:1': '1024x1024',
-      '4:3': '1024x768', 
-      '3:4': '768x1024',
-      '16:9': '1024x576',
-      '9:16': '576x1024'
-    }
-    const size = sizeMap[aspectRatio as keyof typeof sizeMap]
-    if (size) {
-      formData.append('size', size)
-      console.log("Setting image size:", size)
-    }
+  // Auto defaults to 3:4 ratio
+  const sizeMap = {
+    'Auto': '768x1024',  // Default to 3:4 portrait
+    '1:1': '1024x1024',
+    '4:3': '1024x768', 
+    '3:4': '768x1024',
+    '16:9': '1024x576',
+    '9:16': '576x1024'
   }
+  
+  const size = sizeMap[aspectRatio as keyof typeof sizeMap] || sizeMap['Auto']
+  formData.append('size', size)
+  console.log("Setting image size:", size)
 
   try {
     const response = await fetch(API_URL, {

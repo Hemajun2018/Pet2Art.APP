@@ -28,6 +28,7 @@ const styles = ["Vintage", "Renaissance", "Painting"]
 export default function PetArtHero() {
   const [currentGroup, setCurrentGroup] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
   
   const imageGroups = [
     allHeroImages.slice(0, 5),   // Images 1-5
@@ -38,40 +39,46 @@ export default function PetArtHero() {
   const currentImages = imageGroups[currentGroup]
   
   useEffect(() => {
+    // Initial load animation
+    setTimeout(() => setIsLoaded(true), 100)
+    
+    // Image rotation interval
     const interval = setInterval(() => {
       setIsTransitioning(true)
       setTimeout(() => {
         setCurrentGroup((prev) => (prev + 1) % 3)
         setIsTransitioning(false)
-      }, 300)
-    }, 4000)
+      }, 500)
+    }, 5000)
     
     return () => clearInterval(interval)
   }, [])
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="order-2 lg:order-1">
+          <div className="order-2 lg:order-1 flex flex-col justify-start pt-8">
             {/* Main Heading */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-2 leading-[1.1]">
               Create Beautiful
-              <br />
+            </h1>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-2 leading-[1.1]">
               <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
                 Artistic Photos
               </span>
-              <br />
-              <span className="text-4xl md:text-5xl lg:text-6xl">For Your Pets</span>
+            </h1>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-[1.1]">
+              For Your Pets
             </h1>
 
             {/* Style Tags */}
-            <div className="flex flex-wrap gap-3 mb-8">
+            <div className="flex flex-wrap gap-2 mb-5">
               {styles.map((style) => (
                 <Badge 
                   key={style} 
                   variant="outline" 
-                  className="px-4 py-2 text-lg border-border text-muted-foreground bg-secondary/50 hover:bg-secondary"
+                  className="px-3 py-1.5 text-sm border-border text-muted-foreground bg-secondary/50 hover:bg-secondary"
                 >
                   {style}
                 </Badge>
@@ -79,27 +86,29 @@ export default function PetArtHero() {
             </div>
 
             {/* Description */}
-            <p className="text-lg text-muted-foreground max-w-md mb-8">
+            <p className="text-base text-muted-foreground max-w-lg mb-6 leading-relaxed">
               Transform your pet's photos into stunning artistic portraits with AI. 
               Choose from various art styles and create unique masterpieces.
             </p>
 
             {/* CTA Button */}
-            <Button 
-              size="lg" 
-              className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground px-8 py-4 text-lg rounded-full shadow-lg transition-all duration-200 hover:shadow-xl font-semibold"
-              onClick={() => {
-                document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-            >
-              Try it free
-            </Button>
+            <div className="mb-6">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground px-7 py-3.5 text-base rounded-full shadow-lg transition-all duration-200 hover:shadow-xl font-semibold"
+                onClick={() => {
+                  document.getElementById('generate-section')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+              >
+                Try it free
+              </Button>
+            </div>
 
             {/* Social Proof */}
-            <div className="flex items-center gap-6 text-sm text-muted-foreground mt-8">
+            <div className="flex items-center gap-5 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
-                <span className="text-yellow-500">★★★★★</span>
-                4.9/5
+                <span className="text-yellow-500 text-base">★★★★★</span>
+                <span className="font-medium">4.9/5</span>
               </span>
               <span>•</span>
               <span>10,000+ happy pet owners</span>
@@ -107,51 +116,50 @@ export default function PetArtHero() {
           </div>
 
           {/* Right Photo Wall */}
-          <div className="order-1 lg:order-2 relative">
-            <div className={`relative w-full h-[600px] lg:h-[700px] transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+          <div className="order-1 lg:order-2 relative -mt-8 lg:-mt-12">
+            <div className={`relative w-full h-[480px] lg:h-[560px] transition-all duration-700 ${isTransitioning ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
               {/* Photo Grid */}
               <div className="absolute inset-0 grid grid-cols-2 gap-4 p-4">
                 {/* Top Left - Large */}
-                <div className="row-span-2 relative">
-                  <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                <div className={`row-span-2 relative transition-all duration-700 ${
+                  isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                }`} style={{ transitionDelay: '200ms' }}>
+                  <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-500">
                     <Image
                       src={currentImages[0].src}
                       alt={currentImages[0].alt}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-700 hover:scale-110"
                       unoptimized
                     />
                   </div>
                 </div>
 
                 {/* Top Right */}
-                <div className="relative">
-                  <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+                <div className={`relative transition-all duration-700 ${
+                  isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                }`} style={{ transitionDelay: '400ms' }}>
+                  <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl transform -rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-500">
                     <Image
                       src={currentImages[1].src}
                       alt={currentImages[1].alt}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-700 hover:scale-110"
                       unoptimized
                     />
-                    {currentImages[1].isOriginal && (
-                      <div className="absolute bottom-4 left-4">
-                        <Badge className="bg-primary text-primary-foreground px-3 py-1 text-sm font-medium shadow-lg">
-                          Original
-                        </Badge>
-                      </div>
-                    )}
                   </div>
                 </div>
 
                 {/* Bottom Right */}
-                <div className="relative">
-                  <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-300">
+                <div className={`relative transition-all duration-700 ${
+                  isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                }`} style={{ transitionDelay: '600ms' }}>
+                  <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl transform rotate-1 hover:rotate-0 hover:scale-105 transition-all duration-500">
                     <Image
                       src={currentImages[2].src}
                       alt={currentImages[2].alt}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-700 hover:scale-110"
                       unoptimized
                     />
                   </div>
@@ -159,22 +167,26 @@ export default function PetArtHero() {
               </div>
 
               {/* Additional floating cards */}
-              <div className="absolute -bottom-8 -left-8 w-32 h-40 rounded-2xl overflow-hidden shadow-xl transform rotate-12 hover:rotate-6 transition-transform duration-300">
+              <div className={`absolute -bottom-6 -left-6 w-28 h-36 rounded-2xl overflow-hidden shadow-xl transform rotate-12 hover:rotate-6 hover:scale-110 transition-all duration-500 ${
+                isLoaded ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'
+              }`} style={{ transitionDelay: '800ms' }}>
                 <Image
                   src={currentImages[3].src}
                   alt={currentImages[3].alt}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-700 hover:scale-110"
                   unoptimized
                 />
               </div>
 
-              <div className="absolute -top-8 -right-8 w-32 h-40 rounded-2xl overflow-hidden shadow-xl transform -rotate-12 hover:-rotate-6 transition-transform duration-300">
+              <div className={`absolute -top-6 -right-6 w-28 h-36 rounded-2xl overflow-hidden shadow-xl transform -rotate-12 hover:-rotate-6 hover:scale-110 transition-all duration-500 ${
+                isLoaded ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
+              }`} style={{ transitionDelay: '1000ms' }}>
                 <Image
                   src={currentImages[4].src}
                   alt={currentImages[4].alt}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-700 hover:scale-110"
                   unoptimized
                 />
               </div>

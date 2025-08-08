@@ -13,7 +13,9 @@
     "cf:build": "npx @cloudflare/next-on-pages",
     "cf:preview": "pnpm cf:build && wrangler pages dev",
     "cf:deploy": "pnpm cf:build && wrangler pages deploy",
-    "docker:build": "docker build -f Dockerfile -t shipany-template-one:latest ."
+    "docker:build": "docker build -f Dockerfile -t shipany-template-one:latest .",
+    "generate-previews": "tsx scripts/generate-previews.ts",
+    "generate-previews:dry": "tsx scripts/generate-previews.ts --dry-run"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "^0.1.11",
@@ -115,6 +117,7 @@
     "cross-env": "^7.0.3",
     "postcss": "^8.4.49",
     "tailwindcss": "^4.1.4",
+    "tsx": "^4.20.3",
     "typescript": "^5.7.2",
     "vercel": "39.1.1",
     "wrangler": "3.97.0"
