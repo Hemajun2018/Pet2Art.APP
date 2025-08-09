@@ -277,7 +277,15 @@
       },
       {
         "title": "Do you offer refunds if I'm not satisfied?",
-        "description": "Yes! We offer a 100% satisfaction guarantee. If you're not happy with your generated pet art, contact our support team for a full refund or additional credits to try again."
+        "description": "Yes! We offer a 30-day money-back guarantee. If you're not satisfied within 30 days of purchase, contact support@petart.studio for a full refund. We process refund requests within 3-5 business days."
+      },
+      {
+        "title": "How do I cancel my subscription?",
+        "description": "You can cancel your subscription anytime by contacting support@petart.studio or through the Creem Customer Portal. Cancellations are processed within 3 business days. You'll continue to have access until the end of your billing period."
+      },
+      {
+        "title": "What AI technology do you use?",
+        "description": "We're an AI wrapper service that provides a user-friendly interface built on top of advanced models like GPT-4 Vision. We are an independent platform not affiliated with OpenAI or other AI providers. See our AI Disclosure page for full details."
       }
     ]
   },
@@ -340,41 +348,46 @@
           ]
         },
         {
-          "title": "Company",
+          "title": "Support",
           "children": [
             {
-              "title": "About Us",
-              "url": "/#feature",
-              "target": "_self"
-            },
-            {
-              "title": "Contact",
+              "title": "Contact Support",
               "url": "mailto:support@petart.studio",
               "target": "_self"
             },
             {
-              "title": "Blog",
-              "url": "/blog",
+              "title": "Cancel Subscription",
+              "url": "/my-orders",
+              "target": "_self"
+            },
+            {
+              "title": "FAQ",
+              "url": "/#faq",
               "target": "_self"
             }
           ]
         },
         {
-          "title": "Support",
+          "title": "Legal",
           "children": [
             {
-              "title": "Help Center",
-              "url": "/help",
+              "title": "Privacy Policy",
+              "url": "/privacy-policy",
               "target": "_self"
             },
             {
-              "title": "Tutorial",
-              "url": "/tutorial",
+              "title": "Terms of Service",
+              "url": "/terms-of-service",
               "target": "_self"
             },
             {
-              "title": "Contact Us",
-              "url": "mailto:support@petart.studio",
+              "title": "Refund Policy",
+              "url": "/refund-policy",
+              "target": "_self"
+            },
+            {
+              "title": "AI Disclosure",
+              "url": "/ai-disclosure",
               "target": "_self"
             }
           ]
@@ -418,6 +431,22 @@
         {
           "title": "Terms of Service",
           "url": "/terms-of-service"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "Privacy Policy",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "Terms of Service",
+          "url": "/terms-of-service"
+        },
+        {
+          "title": "Refund Policy",
+          "url": "/refund-policy"
         }
       ]
     }

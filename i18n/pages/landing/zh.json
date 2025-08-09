@@ -496,6 +496,10 @@
         {
           "title": "服务条款",
           "url": "/terms-of-service"
+        },
+        {
+          "title": "退款政策",
+          "url": "/refund-policy"
         }
       ]
     }

@@ -11,6 +11,7 @@ import { generatePetArt, downloadImage } from "@/lib/petAiApi"
 import { useAppContext } from "@/contexts/app"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { validateImageFile, checkProhibitedContent, sanitizeInput } from "@/lib/contentFilter"
 
 export default function PetArtGenerator() {
   const router = useRouter()
@@ -84,14 +85,13 @@ export default function PetArtGenerator() {
   ]
 
   const processImageFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
+    // Validate image file
+    const validation = validateImageFile(file)
+    if (!validation.isValid) {
+      alert(validation.reason)
       return
     }
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
-      alert('Image file cannot exceed 10MB')
-      return
-    }
+    
     setPetImage(file)
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -138,6 +138,16 @@ export default function PetArtGenerator() {
       return
     }
 
+    // Check custom prompt for prohibited content
+    if (customPrompt) {
+      const sanitizedPrompt = sanitizeInput(customPrompt)
+      const contentCheck = checkProhibitedContent(sanitizedPrompt)
+      if (!contentCheck.isValid) {
+        alert(contentCheck.reason)
+        return
+      }
+    }
+
     setIsGenerating(true)
     try {
       // 构建包含比例要求的提示词
@@ -153,8 +163,9 @@ export default function PetArtGenerator() {
         ratioPrompt = ratioDescriptions[selectedRatio as keyof typeof ratioDescriptions] || `，输出图片比例为${selectedRatio}`
       }
       
-      const fullCustomPrompt = customPrompt 
-        ? `${customPrompt}${ratioPrompt}` 
+      const sanitizedCustomPrompt = customPrompt ? sanitizeInput(customPrompt) : ""
+      const fullCustomPrompt = sanitizedCustomPrompt 
+        ? `${sanitizedCustomPrompt}${ratioPrompt}` 
         : ratioPrompt.slice(2)
 
       const resultUrl = await generatePetArt(
@@ -235,7 +246,7 @@ export default function PetArtGenerator() {
                   
                   {templateCategories.map((category) => (
                     <TabsContent key={category.id} value={category.id} className="mt-4">
-                      <div className="grid grid-cols-4 gap-2 max-h-96 overflow-y-auto">
+                      <div className="grid grid-cols-4 gap-2 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
                         {(category.id === 'all' 
                           ? Object.values(templates).flat() 
                           : templates[category.id] || []
@@ -293,6 +304,14 @@ export default function PetArtGenerator() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* AI Limitations Notice */}
+              <div className="bg-muted/50 rounded-lg p-3 text-xs space-y-1">
+                <p className="font-medium">Important Notes:</p>
+                <p className="text-muted-foreground">• Only pet photos supported (no humans)</p>
+                <p className="text-muted-foreground">• Best results with clear, well-lit photos</p>
+                <p className="text-muted-foreground">• Processing takes 10-30 seconds</p>
+                <p className="text-muted-foreground">• Results may vary based on photo quality</p>
+              </div>
               <div>
                 <label className="block font-semibold mb-2">Pet Photo</label>
                 <div 

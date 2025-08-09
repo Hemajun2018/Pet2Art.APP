@@ -90,6 +90,12 @@ export default function PetArtHero() {
               Transform your pet's photos into stunning artistic portraits with AI. 
               Choose from various art styles and create unique masterpieces.
             </p>
+            
+            {/* AI Wrapper Disclosure */}
+            <p className="text-sm text-muted-foreground/80 max-w-lg mb-4 leading-relaxed">
+              Our platform offers a user-friendly interface built on top of advanced AI models 
+              including GPT-4 Vision. We are an independent service not affiliated with OpenAI.
+            </p>
 
             {/* CTA Button */}
             <div className="mb-6">

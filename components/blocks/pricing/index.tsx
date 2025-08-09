@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Icon from "@/components/icon";
 import { Label } from "@/components/ui/label";
-import { loadStripe } from "@stripe/stripe-js";
 import { toast } from "sonner";
 import { useAppContext } from "@/contexts/app";
 
@@ -44,7 +43,11 @@ export default function Pricing({ pricing }: { pricing: PricingType }) {
       setIsLoading(true);
       setProductId(item.product_id);
 
-      const response = await fetch("/api/checkout", {
+      // Check if Creem is enabled
+      const useCreem = process.env.NEXT_PUBLIC_CREEM_ENABLED === "true";
+      const endpoint = useCreem ? "/api/creem-checkout" : "/api/checkout";
+      
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,20 +69,32 @@ export default function Pricing({ pricing }: { pricing: PricingType }) {
         return;
       }
 
-      const { public_key, session_id } = data;
+      if (useCreem) {
+        // Creem checkout - redirect to checkout URL
+        const { checkout_url } = data;
+        if (checkout_url) {
+          window.location.href = checkout_url;
+        } else {
+          toast.error("Failed to create checkout session");
+        }
+      } else {
+        // Legacy Stripe checkout
+        const { loadStripe } = await import("@stripe/stripe-js");
+        const { public_key, session_id } = data;
 
-      const stripe = await loadStripe(public_key);
-      if (!stripe) {
-        toast.error("checkout failed");
-        return;
-      }
+        const stripe = await loadStripe(public_key);
+        if (!stripe) {
+          toast.error("checkout failed");
+          return;
+        }
 
-      const result = await stripe.redirectToCheckout({
-        sessionId: session_id,
-      });
+        const result = await stripe.redirectToCheckout({
+          sessionId: session_id,
+        });
 
-      if (result.error) {
-        toast.error(result.error.message);
+        if (result.error) {
+          toast.error(result.error.message);
+        }
       }
     } catch (e) {
       console.log("checkout failed: ", e);
@@ -283,6 +298,16 @@ export default function Pricing({ pricing }: { pricing: PricingType }) {
                           {item.tip}
                         </p>
                       )}
+                      <p className="text-muted-foreground text-xs mt-2 text-center">
+                        By purchasing, you agree to our{" "}
+                        <a href="/terms-of-service" className="underline hover:text-primary" target="_blank">
+                          Terms of Service
+                        </a>{" "}
+                        and{" "}
+                        <a href="/privacy-policy" className="underline hover:text-primary" target="_blank">
+                          Privacy Policy
+                        </a>
+                      </p>
                     </div>
                   </div>
                 </div>

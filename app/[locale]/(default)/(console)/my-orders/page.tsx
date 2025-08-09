@@ -7,6 +7,7 @@ import { Table as TableSlotType } from "@/types/slots/table";
 import { getTranslations } from "next-intl/server";
 import moment from "moment";
 import { redirect } from "next/navigation";
+import SubscriptionManager from "@/components/SubscriptionManager";
 
 export default async function () {
   const t = await getTranslations();
@@ -68,5 +69,16 @@ export default async function () {
     empty_message: t("my_orders.no_orders"),
   };
 
-  return <TableSlot {...table} />;
+  return (
+    <div className="space-y-6">
+      {/* Subscription Management */}
+      <div className="bg-card rounded-lg p-6 border">
+        <h3 className="font-semibold text-lg mb-4">Manage Subscriptions</h3>
+        <SubscriptionManager />
+      </div>
+      
+      {/* Orders Table */}
+      <TableSlot {...table} />
+    </div>
+  );
 }

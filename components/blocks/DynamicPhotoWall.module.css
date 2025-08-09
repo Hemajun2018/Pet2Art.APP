@@ -1,0 +1,37 @@
+.scrollColumn {
+  animation-duration: 20s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+.scrollUp {
+  animation-name: scrollUp;
+}
+
+.scrollDown {
+  animation-name: scrollDown;
+}
+
+@keyframes scrollUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-33.33%);
+  }
+}
+
+@keyframes scrollDown {
+  0% {
+    transform: translateY(-33.33%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* 鼠标悬停时暂停动画 */
+.scrollColumn:hover {
+  animation-play-state: paused;
+}
