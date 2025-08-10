@@ -264,26 +264,6 @@ export default function Pricing({ pricing }: { pricing: PricingType }) {
                       )}
                     </div>
                     <div className="flex flex-col gap-2">
-                      {item.cn_amount && item.cn_amount > 0 ? (
-                        <div className="flex items-center gap-x-2 mt-2">
-                          <span className="text-sm">人民币支付 👉</span>
-                          <div
-                            className="inline-block p-2 hover:cursor-pointer hover:bg-base-200 rounded-md"
-                            onClick={() => {
-                              if (isLoading) {
-                                return;
-                              }
-                              handleCheckout(item, true);
-                            }}
-                          >
-                            <img
-                              src="/imgs/cnpay.png"
-                              alt="cnpay"
-                              className="w-20 h-10 rounded-lg"
-                            />
-                          </div>
-                        </div>
-                      ) : null}
                       {item.button && (
                         <Button
                           className="w-full flex items-center justify-center gap-2 font-semibold"

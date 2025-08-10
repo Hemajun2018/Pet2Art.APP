@@ -97,7 +97,7 @@ export default function SubscriptionManager() {
             You don't have any active subscriptions. 
           </p>
           <p className="text-sm text-muted-foreground mt-2">
-            If you believe this is an error, please contact support@petart.studio
+            If you believe this is an error, please contact petart_studio@outlook.com
           </p>
         </CardContent>
       </Card>
@@ -154,7 +154,7 @@ export default function SubscriptionManager() {
       
       <div className="mt-6 p-4 bg-muted/50 rounded-lg">
         <p className="text-sm text-muted-foreground">
-          <strong>Need help?</strong> Contact us at support@petart.studio or visit the{" "}
+          <strong>Need help?</strong> Contact us at petart_studio@outlook.com or visit the{" "}
           <a href="https://creem.io/portal" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
             Creem Customer Portal
           </a>{" "}

@@ -7,10 +7,10 @@ export default function SupportBar() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Customer Support:</span>
               <a 
-                href="mailto:support@petart.studio" 
+                href="mailto:petart_studio@outlook.com" 
                 className="text-sm text-primary hover:underline font-semibold"
               >
-                support@petart.studio
+                petart_studio@outlook.com
               </a>
             </div>
             <div className="text-sm text-muted-foreground">

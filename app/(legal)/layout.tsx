@@ -24,8 +24,8 @@ export default function LegalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <div>
           <a
             className="text-base-content cursor-pointer hover:opacity-80 transition-opacity"
