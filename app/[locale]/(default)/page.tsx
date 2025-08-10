@@ -4,7 +4,6 @@ import FAQ from "@/components/blocks/faq";
 import Feature from "@/components/blocks/feature";
 import Feature1 from "@/components/blocks/feature1";
 import Feature2 from "@/components/blocks/feature2";
-import Feature3 from "@/components/blocks/feature3";
 import Hero from "@/components/blocks/hero";
 import PetArtHero from "@/components/blocks/hero/PetArtHero";
 import PhotoEditor from "@/components/blocks/PhotoEditor";
@@ -51,7 +50,6 @@ export default async function LandingPage({
       {page.branding && <Branding section={page.branding} />}
       {page.introduce && <Feature1 section={page.introduce} />}
       {page.benefit && <Feature2 section={page.benefit} />}
-      {page.usage && <Feature3 section={page.usage} />}
       {page.feature && <Feature section={page.feature} />}
       {page.showcase && <Showcase section={page.showcase} />}
       {page.pricing && <Pricing pricing={page.pricing} />}

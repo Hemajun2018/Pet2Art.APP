@@ -139,46 +139,6 @@
       }
     ]
   },
-  "usage": {
-    "name": "usage",
-    "title": "Popular Art Styles for Your Pet",
-    "description": "Transform your pet into any artistic style you can imagine:",
-    "image": {
-      "src": "/imgs/features/1.png"
-    },
-    "image_position": "left",
-    "text_align": "center",
-    "items": [
-      {
-        "title": "Renaissance Portrait",
-        "description": "Give your pet the royal treatment with classical Renaissance-style oil paintings.",
-        "image": {
-          "src": "/imgs/features/5.png"
-        }
-      },
-      {
-        "title": "Pop Art Style",
-        "description": "Create vibrant, Andy Warhol-inspired portraits that make your pet a pop culture icon.",
-        "image": {
-          "src": "/imgs/features/6.png"
-        }
-      },
-      {
-        "title": "Watercolor Dreams",
-        "description": "Soft, dreamy watercolor paintings that capture your pet's gentle nature.",
-        "image": {
-          "src": "/imgs/features/7.png"
-        }
-      },
-      {
-        "title": "Modern Digital Art",
-        "description": "Contemporary digital art styles perfect for social media and modern home decor.",
-        "image": {
-          "src": "/imgs/features/8.png"
-        }
-      }
-    ]
-  },
   "feature": {
     "name": "feature",
     "title": "Why Choose PetArt Studio",

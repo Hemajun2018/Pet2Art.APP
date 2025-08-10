@@ -130,7 +130,15 @@ export default function Pricing({ pricing }: { pricing: PricingType }) {
             <div className="flex h-12 mb-12 items-center rounded-md bg-muted p-1 text-lg">
               <RadioGroup
                 value={group}
-                className={`h-full grid-cols-${pricing.groups.length}`}
+                className={`h-full flex ${
+                  pricing.groups.length === 2
+                    ? "grid-cols-2"
+                    : pricing.groups.length === 3
+                    ? "grid-cols-3"
+                    : pricing.groups.length === 4
+                    ? "grid-cols-4"
+                    : "grid-cols-2"
+                }`}
                 onValueChange={(value) => {
                   setGroup(value);
                 }}
@@ -167,10 +175,20 @@ export default function Pricing({ pricing }: { pricing: PricingType }) {
             </div>
           )}
           <div
-            className={`w-full mt-0 grid gap-6 md:grid-cols-${
+            className={`w-full mt-0 grid gap-6 grid-cols-1 ${
               pricing.items?.filter(
                 (item) => !item.group || item.group === group
-              )?.length
+              )?.length === 2
+                ? "md:grid-cols-2 max-w-4xl mx-auto"
+                : pricing.items?.filter(
+                    (item) => !item.group || item.group === group
+                  )?.length === 3
+                ? "md:grid-cols-3 max-w-6xl mx-auto"
+                : pricing.items?.filter(
+                    (item) => !item.group || item.group === group
+                  )?.length === 4
+                ? "md:grid-cols-2 lg:grid-cols-4"
+                : "md:grid-cols-2 lg:grid-cols-3"
             }`}
           >
             {pricing.items?.map((item, index) => {
