@@ -306,51 +306,6 @@
               "target": "_self"
             }
           ]
-        },
-        {
-          "title": "Support",
-          "children": [
-            {
-              "title": "Contact Support",
-              "url": "mailto:petart_studio@outlook.com",
-              "target": "_self"
-            },
-            {
-              "title": "Cancel Subscription",
-              "url": "/my-orders",
-              "target": "_self"
-            },
-            {
-              "title": "FAQ",
-              "url": "/#faq",
-              "target": "_self"
-            }
-          ]
-        },
-        {
-          "title": "Legal",
-          "children": [
-            {
-              "title": "Privacy Policy",
-              "url": "/privacy-policy",
-              "target": "_self"
-            },
-            {
-              "title": "Terms of Service",
-              "url": "/terms-of-service",
-              "target": "_self"
-            },
-            {
-              "title": "Refund Policy",
-              "url": "/refund-policy",
-              "target": "_self"
-            },
-            {
-              "title": "AI Disclosure",
-              "url": "/ai-disclosure",
-              "target": "_self"
-            }
-          ]
         }
       ]
     },

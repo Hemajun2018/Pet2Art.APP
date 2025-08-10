@@ -51,6 +51,17 @@ export default function PetArtGenerator() {
         const data = await response.json()
         setTemplateCategories(data.categories)
         setTemplates(data.templates)
+        
+        // 默认选择第一个模板
+        const firstCategory = data.categories.find((cat: TemplateCategory) => cat.id === 'all') || data.categories[0]
+        if (firstCategory) {
+          const allTemplates = firstCategory.id === 'all' 
+            ? Object.values(data.templates).flat() 
+            : data.templates[firstCategory.id]
+          if (allTemplates && allTemplates.length > 0) {
+            setSelectedTemplate(allTemplates[0])
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to load templates:', error)
@@ -104,6 +115,8 @@ export default function PetArtGenerator() {
     const file = event.target.files?.[0]
     if (file) {
       processImageFile(file)
+      // Remove reference image when user uploads their own
+      setShowReferenceImage(false)
     }
   }
 
@@ -112,6 +125,8 @@ export default function PetArtGenerator() {
     const file = event.dataTransfer.files[0]
     if (file) {
       processImageFile(file)
+      // Remove reference image when user uploads their own
+      setShowReferenceImage(false)
     }
   }
 
@@ -477,7 +492,7 @@ export default function PetArtGenerator() {
                       unoptimized
                     />
                   </div>
-                ) : selectedTemplate ? (
+                ) : selectedTemplate && !petImage ? (
                   <div className="relative">
                     <Image
                       src={getPreviewImagePath(selectedTemplate.image)}
