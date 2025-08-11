@@ -140,9 +140,10 @@ export const authOptions: NextAuthConfig = {
     },
     async session({ session, token, user }) {
       if (token && token.user) {
+        const tokenUser = token.user as any;
         session.user = {
-          ...token.user,
-          id: token.user.uuid, // 确保 id 字段存在并指向 uuid
+          ...tokenUser,
+          id: tokenUser.uuid || tokenUser.id, // 确保 id 字段存在并指向 uuid
         };
       }
       return session;

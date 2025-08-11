@@ -101,4 +101,5 @@ class CreemClient {
   }
 }
 
-export { CreemClient, CreemCheckoutParams, CreemCheckoutSession, CreemWebhookEvent };
+export { CreemClient };
+export type { CreemCheckoutParams, CreemCheckoutSession, CreemWebhookEvent };

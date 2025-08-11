@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CreemClient, CreemWebhookEvent } from "@/lib/creem";
-import { updateOrderBySession } from "@/models/order";
-import { addUserCredits, findUserByEmail } from "@/models/user";
+import { updateOrderSession } from "@/models/order";
+import { findUserByEmail } from "@/models/user";
+import { increaseCredits } from "@/services/credit";
 import { headers } from "next/headers";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.text();
-    const signature = headers().get("x-creem-signature") || "";
+    const headersList = await headers();
+    const signature = headersList.get("x-creem-signature") || "";
     
     // Verify webhook signature
     const webhookSecret = process.env.CREEM_WEBHOOK_SECRET;
@@ -83,13 +85,11 @@ async function handleCheckoutCompleted(event: CreemWebhookEvent) {
   }
 
   // Update order status
-  await updateOrderBySession(session.id, {
-    status: "paid",
-    paid_at: new Date().toISOString(),
-    paid_detail: JSON.stringify(session),
-    paid_email: user_email,
-    stripe_session_id: session.id, // Store Creem session ID in the same field
-  });
+  await updateOrderSession(
+    order_no,
+    session.id, // Store Creem session ID in the same field
+    JSON.stringify(session)
+  );
 
   // Add credits to user
   if (credits > 0 && user_email) {
@@ -100,8 +100,13 @@ async function handleCheckoutCompleted(event: CreemWebhookEvent) {
       user = await findUserByUuid(user_uuid);
     }
     
-    if (user) {
-      await addUserCredits(user.uuid, credits);
+    if (user && user.uuid) {
+      await increaseCredits({
+        user_uuid: user.uuid,
+        trans_type: "order_pay",
+        credits: credits,
+        order_no: order_no
+      });
       console.log(`Added ${credits} credits to user ${user.email}`);
     } else {
       console.error(`User not found for email: ${user_email} or uuid: ${user_uuid}`);

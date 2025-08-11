@@ -220,7 +220,7 @@ export default function PetArtGenerator() {
       formData.append('templateImageUrl', selectedTemplate.image)
       formData.append('customPrompt', fullCustomPrompt)
       formData.append('aspectRatio', selectedRatio)
-      formData.append('templateId', selectedTemplate.id || selectedTemplate.name)
+      formData.append('templateId', selectedTemplate.name)
       formData.append('templateName', selectedTemplate.name)
       formData.append('templateCategory', selectedTemplate.category || '')
 

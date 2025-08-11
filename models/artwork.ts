@@ -245,13 +245,13 @@ export async function getUserFavorites(
   }
 
   // 格式化返回数据
-  return data?.map(item => ({
+  return data?.map((item: any) => ({
     ...item.artworks,
     user_email: item.artworks.users?.email,
     user_nickname: item.artworks.users?.nickname,
     user_avatar_url: item.artworks.users?.avatar_url,
     is_favorited: true,
-  }));
+  })) as ArtworkWithUser[];
 }
 
 // 获取作品统计数据

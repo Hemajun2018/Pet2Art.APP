@@ -200,6 +200,8 @@ export async function POST(req: NextRequest) {
       trans_type: "deduct",
       credits: -1,  // 扣除积分应该是负数
       description: `Generated artwork: ${templateName || templateId}`,
+      order_no: "",  // 添加 order_no 字段
+      expired_at: "",  // 添加 expired_at 字段
       created_at: getIsoTimestr(),
     };
     
