@@ -11,7 +11,9 @@ export default function CTA({ section }: { section: SectionType }) {
   return (
     <section id={section.name} className="py-16">
       <div className="px-8">
-        <div className='flex items-center justify-center rounded-2xl  bg-[url("/imgs/masks/circle.svg")] bg-cover bg-center px-8 py-12 text-center md:p-16'>
+        <div 
+          className='flex items-center justify-center rounded-2xl bg-cover bg-center px-8 py-12 text-center md:p-16'
+          style={{ backgroundImage: 'url("/imgs/masks/circle.svg")' }}>
           <div className="mx-auto max-w-(--breakpoint-md)">
             <h2 className="mb-4 text-balance text-3xl font-semibold md:text-5xl">
               {section.title}

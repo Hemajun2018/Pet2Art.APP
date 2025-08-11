@@ -1,0 +1,87 @@
+  📋 配置恢复步骤
+
+  第一步：生成 AUTH_SECRET
+
+  在终端运行以下命令生成密钥：
+  openssl rand -base64 32
+  将生成的密钥复制到 AUTH_SECRET 配置项中。
+
+  第二步：配置 Supabase 数据库
+
+  1. 访问 https://supabase.com
+  2. 登录或创建账号
+  3. 创建新项目（或使用已有项目）
+  4. 在项目仪表板中，点击左侧 "Settings" →
+  "API"
+  5. 复制以下三个值：
+    - Project URL → 填入 SUPABASE_URL
+    - anon public → 填入 SUPABASE_ANON_KEY
+    - service_role → 填入
+  SUPABASE_SERVICE_ROLE_KEY
+
+  第三步：配置 Google 登录
+
+  1. 访问 https://console.cloud.google.com
+  2. 创建新项目或选择现有项目
+  3. 左侧菜单 → "API和服务" → "凭据"
+  4. 点击 "创建凭据" → "OAuth 客户端 ID"
+  5. 配置 OAuth 同意屏幕（如果需要）
+  6. 创建 OAuth 客户端：
+    - 应用类型：Web 应用
+    - 授权的 JavaScript 来源：
+        - http://localhost:3000（开发）
+      - https://你的域名（生产）
+    - 授权的重定向 URI：
+        - http://localhost:3000/api/auth/callb
+  ack/google（开发）
+      - https://你的域名/api/auth/callback/goo
+  gle（生产）
+  7. 复制客户端 ID 和密钥到对应配置项
+
+  第四步：配置支付系统
+
+  选项 A：Creem（推荐）
+
+  1. 访问 https://creem.io
+  2. 注册并登录
+  3. 在 Dashboard 获取 API Key
+  4. 配置 Webhook：
+    - URL: https://你的域名/api/creem-webhook
+    - 订阅事件：所有支付相关事件
+
+  选项 B：Stripe
+
+  1. 访问 https://dashboard.stripe.com
+  2. 获取 Publishable key 和 Secret key
+  3. 配置
+  Webhook：https://你的域名/api/stripe-notify
+
+  第五步：配置 AI 生图 API (Kling)
+
+  这是宠物艺术生成的核心功能：
+  1. 访问 Kling AI 开发者平台
+  2. 注册开发者账号
+  3. 获取 Access Key 和 Secret Key
+  4. 填入对应配置项
+
+  ⚠️ 重要提醒
+
+  1. 先在本地测试：确保所有功能在本地正常运行
+  后再部署
+  2. 使用测试模式：支付系统先用测试 API 密钥
+  3. 数据库初始化：首次使用需要在 Supabase
+  中运行 SQL 初始化脚本（在 data/install.sql
+  中）
+  4. 管理员设置：在 ADMIN_EMAILS
+  中设置你的邮箱以获取管理员权限
+
+  🔍 配置验证
+
+  配置完成后，运行以下命令测试：
+  pnpm dev
+
+  然后检查：
+  1. 访问 http://localhost:3000 - 页面正常显示
+  2. 点击登录 - Google 登录按钮显示
+  3. 尝试登录 - 能够成功登录
+  4. 查看价格页面 - 支付按钮正常显示

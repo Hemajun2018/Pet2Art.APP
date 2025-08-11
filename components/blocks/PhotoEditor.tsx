@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Image from "next/image"
 import { getPreviewImagePath, type PetTemplate, type TemplateCategory } from "@/lib/petTemplates"
-import { generatePetArt, downloadImage } from "@/lib/petAiApi"
+import { downloadImage } from "@/lib/petAiApi"
 import { useAppContext } from "@/contexts/app"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
@@ -183,18 +183,34 @@ export default function PetArtGenerator() {
         ? `${sanitizedCustomPrompt}${ratioPrompt}` 
         : ratioPrompt.slice(2)
 
-      const resultUrl = await generatePetArt(
-        petImage,
-        selectedTemplate.image,
-        fullCustomPrompt,
-        selectedRatio
-      )
-      setGeneratedImage(resultUrl)
+      // 调用后端API生成图片（包含积分扣除和作品保存）
+      const formData = new FormData()
+      formData.append('petImage', petImage)
+      formData.append('templateImageUrl', selectedTemplate.image)
+      formData.append('customPrompt', fullCustomPrompt)
+      formData.append('aspectRatio', selectedRatio)
+      formData.append('templateId', selectedTemplate.id || selectedTemplate.name)
+      formData.append('templateName', selectedTemplate.name)
+      formData.append('templateCategory', selectedTemplate.category || '')
+
+      const response = await fetch('/api/generate-pet-art', {
+        method: 'POST',
+        body: formData
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Generation failed')
+      }
+
+      setGeneratedImage(result.data.generated_image_url)
       
       // 更新用户积分
-      setUserCredits(prev => Math.max(0, prev - 1))
+      setUserCredits(result.data.remaining_credits)
       
-      // TODO: 保存生成记录到数据库
+      // 刷新积分显示
+      await fetchUserCredits()
       
     } catch (error) {
       alert("Generation failed. Please try again")

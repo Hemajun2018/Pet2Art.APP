@@ -17,6 +17,12 @@ export default async function ({ children }: { children: ReactNode }) {
     nav: {
       items: [
         {
+          title: "My Artworks",
+          url: "/my-artworks",
+          icon: "RiImageLine",
+          is_active: false,
+        },
+        {
           title: t("user.my_orders"),
           url: "/my-orders",
           icon: "RiOrderPlayLine",

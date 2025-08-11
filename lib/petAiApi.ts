@@ -13,8 +13,9 @@ interface ApiResponse {
   }
 }
 
-const API_KEY = process.env.NEXT_PUBLIC_PET_AI_API_KEY || 'sk-5Um5ukgkeWI6dxB8Z3JUq6MYbpz1biNQMJ4j44uCSBe5gMTk'
-const API_URL = 'https://api.apicore.ai/v1/images/edits'
+// API配置从环境变量读取
+const API_KEY = process.env.NEXT_PUBLIC_PET_AI_API_KEY || ''
+const API_URL = process.env.NEXT_PUBLIC_PET_AI_API_URL || 'https://api.apicore.ai/v1/images/edits'
 
 export async function generatePetArt(
   petImageFile: File,
