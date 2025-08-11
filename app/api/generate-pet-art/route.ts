@@ -135,14 +135,18 @@ export async function POST(req: NextRequest) {
     // 记录开始时间
     const startTime = Date.now();
 
-    // 调用AI API
+    // 调用AI API（设置5分钟超时，因为生成图片需要2-3分钟）
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 300000); // 5分钟超时
+    
     const aiResponse = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${API_KEY}`
       },
-      body: aiFormData
-    });
+      body: aiFormData,
+      signal: controller.signal
+    }).finally(() => clearTimeout(timeoutId));
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
@@ -194,14 +198,14 @@ export async function POST(req: NextRequest) {
     await insertArtwork(artwork);
 
     // 扣除积分
-    const creditRecord = {
+    const creditRecord: any = {
       trans_no: `deduct_${uuidv4()}`,
       user_uuid,
       trans_type: "deduct",
       credits: -1,  // 扣除积分应该是负数
       description: `Generated artwork: ${templateName || templateId}`,
-      order_no: "",  // 添加 order_no 字段
-      expired_at: "",  // 添加 expired_at 字段
+      order_no: null,  // 使用 null 而不是空字符串
+      expired_at: null,  // 使用 null 而不是空字符串
       created_at: getIsoTimestr(),
     };
     
@@ -216,10 +220,20 @@ export async function POST(req: NextRequest) {
         remaining_credits: userCredits - 1,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating pet art:", error);
+    
+    // 处理超时错误
+    if (error.name === 'AbortError') {
+      return NextResponse.json(
+        { success: false, message: "Request timeout. Please try again with a simpler prompt or smaller image." },
+        { status: 408 }
+      );
+    }
+    
+    // 处理其他错误
     return NextResponse.json(
-      { success: false, message: "Failed to generate pet art" },
+      { success: false, message: error.message || "Failed to generate pet art" },
       { status: 500 }
     );
   }
