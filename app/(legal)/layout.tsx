@@ -87,10 +87,6 @@ export default function LegalLayout({
                 <a href="/terms-of-service" className="hover:text-primary transition-colors">
                   Terms of Service
                 </a>
-                <span>•</span>
-                <a href="/refund-policy" className="hover:text-primary transition-colors">
-                  Refund Policy
-                </a>
               </div>
             </div>
           </div>

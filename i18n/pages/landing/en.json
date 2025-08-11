@@ -3,10 +3,10 @@
   "theme": "light",
   "header": {
     "brand": {
-      "title": "Pet2Art Studio",
+      "title": "Pet2Art",
       "logo": {
         "src": "/logo.png",
-        "alt": "Pet2Art Studio"
+        "alt": "Pet2Art"
       },
       "url": "/"
     },
@@ -83,7 +83,7 @@
   },
   "introduce": {
     "name": "introduce",
-    "title": "Turn Your Pet Photos Into Art",
+    "title": "How to Use Pet2Art",
     "label": "How It Works",
     "description": "Create professional artistic portraits of your pets in just 3 simple steps. No artistic skills required!",
     "image": {
@@ -141,7 +141,7 @@
   },
   "feature": {
     "name": "feature",
-    "title": "Why Choose Pet2Art Studio",
+    "title": "Why Choose Pet2Art",
     "description": "Professional pet portraits made easy with cutting-edge AI technology.",
     "items": [
       {
@@ -179,7 +179,7 @@
   "stats": {
     "name": "stats",
     "label": "Stats",
-    "title": "Why Choose Pet2Art Studio",
+    "title": "Why Choose Pet2Art",
     "description": "Professional pet portraits made easy.",
     "icon": "FaRegHeart",
     "items": [
@@ -213,7 +213,7 @@
     "name": "faq",
     "label": "FAQ",
     "title": "Frequently Asked Questions",
-    "description": "Everything you need to know about creating pet art with Pet2Art Studio.",
+    "description": "Everything you need to know about creating pet art with Pet2Art.",
     "items": [
       {
         "title": "What types of pets can I create art for?",
@@ -271,15 +271,15 @@
   "footer": {
     "name": "footer",
     "brand": {
-      "title": "Pet2Art Studio",
+      "title": "Pet2Art",
       "description": "Transform your beloved pets into stunning artistic portraits with AI technology. Professional quality, instant results.",
       "logo": {
         "src": "/logo.png",
-        "alt": "Pet2Art Studio"
+        "alt": "Pet2Art"
       },
       "url": "/"
     },
-    "copyright": "© 2025 Pet2Art Studio. All rights reserved.",
+    "copyright": "© 2025 Pet2Art. All rights reserved.",
     "nav": {
       "items": [
         {
@@ -346,22 +346,6 @@
         {
           "title": "Terms of Service",
           "url": "/terms-of-service"
-        }
-      ]
-    },
-    "agreement": {
-      "items": [
-        {
-          "title": "Privacy Policy",
-          "url": "/privacy-policy"
-        },
-        {
-          "title": "Terms of Service",
-          "url": "/terms-of-service"
-        },
-        {
-          "title": "Refund Policy",
-          "url": "/refund-policy"
         }
       ]
     }
