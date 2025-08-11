@@ -74,8 +74,21 @@ export async function POST(req: NextRequest) {
     // 准备调用AI API
     const aiFormData = new FormData();
     
-    // 获取模板图片
-    const templateResponse = await fetch(templateImageUrl);
+    // 获取模板图片 - 构建完整的URL
+    const baseUrl = process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3000';
+    const fullTemplateUrl = templateImageUrl.startsWith('http') 
+      ? templateImageUrl 
+      : `${baseUrl}${templateImageUrl}`;
+    
+    const templateResponse = await fetch(fullTemplateUrl);
+    if (!templateResponse.ok) {
+      console.error(`Failed to fetch template image: ${templateResponse.status}`);
+      return NextResponse.json(
+        { success: false, message: "Failed to fetch template image" },
+        { status: 500 }
+      );
+    }
+    
     const templateBlob = await templateResponse.blob();
     const templateFile = new File([templateBlob], 'template.jpg', { type: 'image/jpeg' });
     aiFormData.append('image', templateFile);
