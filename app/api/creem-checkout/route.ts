@@ -150,7 +150,7 @@ export async function POST(req: Request) {
             currency: currency.toLowerCase(),
             product_data: {
               name: product_name,
-              description: `${credits} credits for PetArt Studio`,
+                description: `${credits} credits for Pet2Art Studio`,
             },
             unit_amount: amount,
             recurring: is_subscription

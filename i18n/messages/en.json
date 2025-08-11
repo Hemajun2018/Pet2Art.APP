@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "title": "PetArt Studio - Transform Your Pet Into Stunning Art with AI",
+    "title": "Pet2Art Studio - Transform Your Pet Into Stunning Art with AI",
     "description": "Create professional artistic portraits of your beloved pets with AI technology. 50+ art styles, instant results, high-resolution downloads.",
     "keywords": "pet art, pet portrait, AI pet art, dog portrait, cat portrait, pet painting, custom pet art, pet gift"
   },
@@ -17,7 +17,7 @@
     "sign_in_title": "Welcome Back",
     "sign_in_description": "Sign in to create more pet art",
     "sign_up_title": "Get Started",
-    "sign_up_description": "Create your PetArt account",
+    "sign_up_description": "Create your Pet2Art account",
     "email_title": "Email",
     "email_placeholder": "Enter your email",
     "password_title": "Password",
@@ -34,7 +34,7 @@
   },
   "my_orders": {
     "title": "My Orders",
-    "description": "Your PetArt purchase history",
+    "description": "Your Pet2Art purchase history",
     "no_orders": "No orders yet",
     "tip": "Start creating pet art today!",
     "activate_order": "Activate Credits",
@@ -87,7 +87,7 @@
   },
   "my_invites": {
     "title": "Refer Friends",
-    "description": "Share PetArt with friends and earn rewards",
+    "description": "Share Pet2Art with friends and earn rewards",
     "no_invites": "No referrals yet",
     "my_invite_link": "Your Referral Link",
     "edit_invite_link": "Edit Link",
@@ -115,11 +115,11 @@
   },
   "feedback": {
     "title": "Feedback",
-    "description": "Help us improve PetArt! Share your experience or suggestions.",
+    "description": "Help us improve Pet2Art! Share your experience or suggestions.",
     "submit": "Send Feedback",
     "loading": "Sending...",
     "contact_tip": "Need help? Contact support",
-    "rating_tip": "How's your PetArt experience?",
+    "rating_tip": "How's your Pet2Art experience?",
     "placeholder": "Tell us what you think..."
   }
 }

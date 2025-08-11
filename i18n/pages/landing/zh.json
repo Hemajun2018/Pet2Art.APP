@@ -3,10 +3,10 @@
   "theme": "light",
   "header": {
     "brand": {
-      "title": "PetArt Studio",
+      "title": "Pet2Art Studio",
       "logo": {
         "src": "/logo.png",
-        "alt": "PetArt Studio"
+          "alt": "Pet2Art Studio"
       },
       "url": "/"
     },

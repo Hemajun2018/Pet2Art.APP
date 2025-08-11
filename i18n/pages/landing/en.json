@@ -3,10 +3,10 @@
   "theme": "light",
   "header": {
     "brand": {
-      "title": "PetArt Studio",
+      "title": "Pet2Art Studio",
       "logo": {
         "src": "/logo.png",
-        "alt": "PetArt Studio"
+        "alt": "Pet2Art Studio"
       },
       "url": "/"
     },
@@ -109,7 +109,7 @@
   },
   "benefit": {
     "name": "benefit",
-    "title": "Why Pet Owners Love PetArt",
+    "title": "Why Pet Owners Love Pet2Art",
     "label": "Benefits",
     "description": "Professional quality pet portraits that capture your pet's unique personality and charm.",
     "items": [
@@ -141,7 +141,7 @@
   },
   "feature": {
     "name": "feature",
-    "title": "Why Choose PetArt Studio",
+    "title": "Why Choose Pet2Art Studio",
     "description": "Professional pet portraits made easy with cutting-edge AI technology.",
     "items": [
       {
@@ -179,7 +179,7 @@
   "stats": {
     "name": "stats",
     "label": "Stats",
-    "title": "Why Choose PetArt Studio",
+    "title": "Why Choose Pet2Art Studio",
     "description": "Professional pet portraits made easy.",
     "icon": "FaRegHeart",
     "items": [
@@ -203,7 +203,7 @@
   "testimonial": {
     "name": "testimonial",
     "label": "Reviews",
-    "title": "What Pet Owners Say About PetArt",
+    "title": "What Pet Owners Say About Pet2Art",
     "description": "Real reviews from our happy customers.",
     "icon": "GoThumbsup",
     "items": [],
@@ -213,11 +213,11 @@
     "name": "faq",
     "label": "FAQ",
     "title": "Frequently Asked Questions",
-    "description": "Everything you need to know about creating pet art with PetArt Studio.",
+    "description": "Everything you need to know about creating pet art with Pet2Art Studio.",
     "items": [
       {
         "title": "What types of pets can I create art for?",
-        "description": "PetArt works with all types of pets - dogs, cats, birds, rabbits, hamsters, horses, and more! As long as you have a clear photo of your pet, we can transform it into beautiful art."
+        "description": "Pet2Art works with all types of pets - dogs, cats, birds, rabbits, hamsters, horses, and more! As long as you have a clear photo of your pet, we can transform it into beautiful art."
       },
       {
         "title": "What photo quality do I need for best results?",
@@ -229,7 +229,7 @@
       },
       {
         "title": "Can I use the generated art for commercial purposes?",
-        "description": "Yes! Once you generate art with PetArt, you own full rights to use it however you wish - personal use, gifts, merchandise, or commercial purposes."
+        "description": "Yes! Once you generate art with Pet2Art, you own full rights to use it however you wish - personal use, gifts, merchandise, or commercial purposes."
       },
       {
         "title": "What resolution are the generated images?",
@@ -271,15 +271,15 @@
   "footer": {
     "name": "footer",
     "brand": {
-      "title": "PetArt Studio",
+      "title": "Pet2Art Studio",
       "description": "Transform your beloved pets into stunning artistic portraits with AI technology. Professional quality, instant results.",
       "logo": {
         "src": "/logo.png",
-        "alt": "PetArt Studio"
+        "alt": "Pet2Art Studio"
       },
       "url": "/"
     },
-    "copyright": "© 2025 PetArt Studio. All rights reserved.",
+    "copyright": "© 2025 Pet2Art Studio. All rights reserved.",
     "nav": {
       "items": [
         {
