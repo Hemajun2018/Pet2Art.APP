@@ -29,6 +29,7 @@ export default function PetArtHero() {
   const [currentGroup, setCurrentGroup] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   
   const imageGroups = [
     allHeroImages.slice(0, 5),   // Images 1-5
@@ -39,8 +40,11 @@ export default function PetArtHero() {
   const currentImages = imageGroups[currentGroup]
   
   useEffect(() => {
-    // Initial load animation
-    setTimeout(() => setIsLoaded(true), 100)
+    // Set mounted state to enable client-side animations
+    setIsMounted(true)
+    
+    // Initial load animation only on client
+    const loadTimer = setTimeout(() => setIsLoaded(true), 100)
     
     // Image rotation interval
     const interval = setInterval(() => {
@@ -51,7 +55,10 @@ export default function PetArtHero() {
       }, 500)
     }, 5000)
     
-    return () => clearInterval(interval)
+    return () => {
+      clearTimeout(loadTimer)
+      clearInterval(interval)
+    }
   }, [])
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 overflow-hidden">
@@ -131,12 +138,12 @@ export default function PetArtHero() {
 
           {/* Right Photo Wall */}
           <div className="order-1 lg:order-2 relative -mt-8 lg:-mt-12">
-            <div className={`relative w-full h-[480px] lg:h-[560px] transition-all duration-700 ${isTransitioning ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+            <div className={`relative w-full h-[480px] lg:h-[560px] transition-all duration-700 ${isMounted && isTransitioning ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
               {/* Photo Grid */}
               <div className="absolute inset-0 grid grid-cols-2 gap-4 p-4">
                 {/* Top Left - Large */}
                 <div className={`row-span-2 relative transition-all duration-700 ${
-                  isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                  isMounted && isLoaded ? 'translate-y-0 opacity-100' : isMounted ? 'translate-y-10 opacity-0' : 'translate-y-0 opacity-100'
                 }`} style={{ transitionDelay: '200ms' }}>
                   <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-500">
                     <Image
@@ -151,7 +158,7 @@ export default function PetArtHero() {
 
                 {/* Top Right */}
                 <div className={`relative transition-all duration-700 ${
-                  isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                  isMounted && isLoaded ? 'translate-y-0 opacity-100' : isMounted ? 'translate-y-10 opacity-0' : 'translate-y-0 opacity-100'
                 }`} style={{ transitionDelay: '400ms' }}>
                   <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl transform -rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-500">
                     <Image
@@ -166,7 +173,7 @@ export default function PetArtHero() {
 
                 {/* Bottom Right */}
                 <div className={`relative transition-all duration-700 ${
-                  isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                  isMounted && isLoaded ? 'translate-y-0 opacity-100' : isMounted ? 'translate-y-10 opacity-0' : 'translate-y-0 opacity-100'
                 }`} style={{ transitionDelay: '600ms' }}>
                   <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl transform rotate-1 hover:rotate-0 hover:scale-105 transition-all duration-500">
                     <Image
@@ -182,7 +189,7 @@ export default function PetArtHero() {
 
               {/* Additional floating cards */}
               <div className={`absolute -bottom-6 -left-6 w-28 h-36 rounded-2xl overflow-hidden shadow-xl transform rotate-12 hover:rotate-6 hover:scale-110 transition-all duration-500 ${
-                isLoaded ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'
+                isMounted && isLoaded ? 'translate-x-0 opacity-100' : isMounted ? '-translate-x-10 opacity-0' : 'translate-x-0 opacity-100'
               }`} style={{ transitionDelay: '800ms' }}>
                 <Image
                   src={currentImages[3].src}
@@ -194,7 +201,7 @@ export default function PetArtHero() {
               </div>
 
               <div className={`absolute -top-6 -right-6 w-28 h-36 rounded-2xl overflow-hidden shadow-xl transform -rotate-12 hover:-rotate-6 hover:scale-110 transition-all duration-500 ${
-                isLoaded ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
+                isMounted && isLoaded ? 'translate-x-0 opacity-100' : isMounted ? 'translate-x-10 opacity-0' : 'translate-x-0 opacity-100'
               }`} style={{ transitionDelay: '1000ms' }}>
                 <Image
                   src={currentImages[4].src}

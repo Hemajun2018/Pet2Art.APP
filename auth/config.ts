@@ -139,8 +139,11 @@ export const authOptions: NextAuthConfig = {
       return baseUrl;
     },
     async session({ session, token, user }) {
-      if (token && token.user && token.user) {
-        session.user = token.user;
+      if (token && token.user) {
+        session.user = {
+          ...token.user,
+          id: token.user.uuid, // 确保 id 字段存在并指向 uuid
+        };
       }
       return session;
     },

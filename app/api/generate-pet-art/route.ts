@@ -29,9 +29,20 @@ export async function POST(req: NextRequest) {
   try {
     // 验证用户身份
     const session = await auth();
+    console.log('Session:', session);
+    
     if (!session || !session.user) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // 确保用户ID存在
+    if (!session.user.id) {
+      console.error('User ID is missing from session:', session.user);
+      return NextResponse.json(
+        { success: false, message: "User ID not found in session" },
         { status: 401 }
       );
     }
@@ -54,6 +65,7 @@ export async function POST(req: NextRequest) {
 
     // 检查用户积分
     const user_uuid = session.user.id;
+    console.log('User UUID:', user_uuid);
     const userCreditsResp = await fetch(`${process.env.NEXT_PUBLIC_WEB_URL}/api/get-user-credits`, {
       method: "POST",
       headers: {
@@ -186,7 +198,7 @@ export async function POST(req: NextRequest) {
       trans_no: `deduct_${uuidv4()}`,
       user_uuid,
       trans_type: "deduct",
-      credits: 1,
+      credits: -1,  // 扣除积分应该是负数
       description: `Generated artwork: ${templateName || templateId}`,
       created_at: getIsoTimestr(),
     };

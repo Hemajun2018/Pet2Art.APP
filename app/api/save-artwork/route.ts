@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
         trans_no: `deduct_${uuidv4()}`,
         user_uuid,
         trans_type: "deduct",
-        credits: credits_used,
+        credits: -credits_used,  // 扣除积分应该是负数
         description: `Generated artwork: ${template_name || template_id}`,
         created_at: getIsoTimestr(),
       };

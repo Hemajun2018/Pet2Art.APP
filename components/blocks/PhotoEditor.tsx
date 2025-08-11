@@ -26,6 +26,9 @@ export default function PetArtGenerator() {
   const [customPrompt, setCustomPrompt] = useState("")
   const [generatedImage, setGeneratedImage] = useState<string>("")
   const [isGenerating, setIsGenerating] = useState(false)
+  const [generationProgress, setGenerationProgress] = useState(0)
+  const [generationMessage, setGenerationMessage] = useState('')
+  const [startTime, setStartTime] = useState<number | null>(null)
   const [showReferenceImage, setShowReferenceImage] = useState(true)
   const [userCredits, setUserCredits] = useState<number>(0)
   const [templateCategories, setTemplateCategories] = useState<TemplateCategory[]>([])
@@ -139,6 +142,34 @@ export default function PetArtGenerator() {
       alert("Please upload a pet photo and select a template")
       return
     }
+    
+    // Reset progress state
+    setGenerationProgress(0)
+    setGenerationMessage('Preparing to generate...')
+    setStartTime(Date.now())
+    
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      setGenerationProgress(prev => {
+        if (prev >= 90) return prev // Stop at 90% until actual completion
+        return Math.min(prev + Math.random() * 8 + 2, 90)
+      })
+    }, 3000)
+    
+    // Update status messages
+    const messages = [
+      'Analyzing your pet photo...',
+      'Identifying pet features...',
+      'Applying artistic style...',
+      'Enhancing details...',
+      'AI is creating your masterpiece...',
+      'Almost done, please wait...'
+    ]
+    let messageIndex = 0
+    const messageInterval = setInterval(() => {
+      messageIndex = (messageIndex + 1) % messages.length
+      setGenerationMessage(messages[messageIndex])
+    }, 8000)
 
     // 检查用户是否登录
     if (!session || !user) {
@@ -206,17 +237,40 @@ export default function PetArtGenerator() {
 
       setGeneratedImage(result.data.generated_image_url)
       
+      // Complete progress
+      setGenerationProgress(100)
+      setGenerationMessage('Generation complete!')
+      
       // 更新用户积分
       setUserCredits(result.data.remaining_credits)
       
       // 刷新积分显示
       await fetchUserCredits()
       
+      // 显示成功提示
+      const elapsed = startTime ? Math.round((Date.now() - startTime) / 1000) : 0
+      console.log(`Generation completed in ${elapsed} seconds`)
+      
+      // 清理定时器
+      clearInterval(progressInterval)
+      clearInterval(messageInterval)
+      
     } catch (error) {
+      // 清理定时器
+      clearInterval(progressInterval)
+      clearInterval(messageInterval)
+      
+      setGenerationMessage('Generation failed, please try again')
       alert("Generation failed. Please try again")
       console.error(error)
     } finally {
       setIsGenerating(false)
+      // 延迟清理进度状态，让用户看到100%
+      setTimeout(() => {
+        setGenerationProgress(0)
+        setGenerationMessage('')
+        setStartTime(null)
+      }, 2000)
     }
   }
 
@@ -475,7 +529,7 @@ export default function PetArtGenerator() {
                 {isGenerating ? (
                   <>
                     <span className="animate-spin mr-2">⏳</span>
-                    Generating...
+                    Generating... ({Math.round(generationProgress)}%)
                   </>
                 ) : (
                   <>
@@ -484,6 +538,53 @@ export default function PetArtGenerator() {
                   </>
                 )}
               </Button>
+              
+              {/* 生成进度显示 */}
+              {isGenerating && (
+                <div className="mt-4 space-y-3">
+                  {/* 进度条 */}
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                    <div 
+                      className="bg-primary h-full rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${generationProgress}%` }}
+                    />
+                  </div>
+                  
+                  {/* 状态消息 */}
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-muted-foreground animate-pulse">
+                      {generationMessage}
+                    </p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">
+                      Estimated time: 2-3 minutes, please be patient...
+                    </p>
+                  </div>
+                  
+                  {/* 倒计时显示 */}
+                  {startTime && (
+                    <div className="text-center">
+                      <div className="text-xs text-muted-foreground">
+                        Elapsed: {Math.round((Date.now() - startTime) / 1000)} seconds
+                      </div>
+                      <div className="text-xs text-muted-foreground/50 mt-1">
+                        Remaining: {Math.max(0, 120 - Math.round((Date.now() - startTime) / 1000))} seconds
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 温馨提示 */}
+                  <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <span className="text-blue-500 text-sm">💡</span>
+                      <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                        <p>• You can download the HD image after generation</p>
+                        <p>• Please keep this page open during generation</p>
+                        <p>• Each generation will consume 1 credit</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -497,6 +598,43 @@ export default function PetArtGenerator() {
             </CardHeader>
             <CardContent>
               <div className="relative border-2 border-dashed border-border rounded-lg p-6 min-h-[400px] flex items-center justify-center bg-muted/20">
+                {/* 生成中的动画效果 */}
+                {isGenerating && !generatedImage && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg z-20">
+                    <div className="text-center">
+                      {/* 主动画 */}
+                      <div className="relative w-32 h-32 mx-auto mb-6">
+                        {/* 外圈旋转 */}
+                        <div className="absolute inset-0 border-4 border-primary/20 rounded-full animate-ping" />
+                        <div className="absolute inset-0 border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
+                        
+                        {/* 中心图标 */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-5xl animate-pulse">🎨</div>
+                        </div>
+                      </div>
+                      
+                      {/* Text prompt */}
+                      <h3 className="text-lg font-semibold mb-2">AI is creating...</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {generationMessage}
+                      </p>
+                      
+                      {/* 进度百分比 */}
+                      <div className="text-2xl font-bold text-primary mb-2">
+                        {Math.round(generationProgress)}%
+                      </div>
+                      
+                      {/* 预计剩余时间 */}
+                      {startTime && (
+                        <p className="text-xs text-muted-foreground">
+                          Remaining: {Math.max(0, 120 - Math.round((Date.now() - startTime) / 1000))} seconds
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
                 {generatedImage ? (
                   <div className="relative">
                     <Image

@@ -57,7 +57,7 @@ export async function getUserValidCredits(
     .from("credits")
     .select("*")
     .eq("user_uuid", user_uuid)
-    .gte("expired_at", now)
+    .or(`expired_at.is.null,expired_at.gte.${now}`)
     .order("expired_at", { ascending: true });
 
   if (error) {
