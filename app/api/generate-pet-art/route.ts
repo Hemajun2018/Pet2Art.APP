@@ -5,6 +5,7 @@ import { insertCredit } from "@/models/credit";
 import { findUserByUuid } from "@/models/user";
 import { v4 as uuidv4 } from "uuid";
 import { getIsoTimestr } from "@/lib/time";
+import { newStorage } from "@/lib/storage";
 
 interface ApiResponse {
   data: Array<{
@@ -166,14 +167,50 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const generatedImageUrl = aiData.data[0].url;
+    const aiGeneratedImageUrl = aiData.data[0].url;
     const generationTime = Date.now() - startTime;
-
-    // 保存原始宠物图片（可选，这里暂时跳过）
-    let originalImageUrl = '';
 
     // 生成作品ID
     const artwork_id = `art_${uuidv4()}`;
+    
+    // 初始化存储
+    const storage = newStorage();
+    
+    // 上传生成的图片到 R2
+    let generatedImageUrl = aiGeneratedImageUrl;
+    let originalImageUrl = '';
+    
+    try {
+      // 构建文件路径
+      const timestamp = Date.now();
+      const generatedImageKey = `artworks/${user_uuid}/${artwork_id}/generated_${timestamp}.jpg`;
+      
+      // 下载并上传生成的图片到 R2
+      const uploadResult = await storage.downloadAndUpload({
+        url: aiGeneratedImageUrl,
+        key: generatedImageKey,
+        contentType: 'image/jpeg',
+      });
+      
+      generatedImageUrl = uploadResult.url || aiGeneratedImageUrl;
+      
+      // 上传原始宠物图片到 R2（可选）
+      if (petImage && petImage.size > 0) {
+        const originalImageKey = `artworks/${user_uuid}/${artwork_id}/original_${timestamp}.jpg`;
+        const petImageBuffer = Buffer.from(await petImage.arrayBuffer());
+        
+        const originalUploadResult = await storage.uploadFile({
+          body: petImageBuffer,
+          key: originalImageKey,
+          contentType: petImage.type || 'image/jpeg',
+        });
+        
+        originalImageUrl = originalUploadResult.url || '';
+      }
+    } catch (uploadError) {
+      console.error('Failed to upload images to R2:', uploadError);
+      // 如果上传失败，继续使用 AI API 返回的 URL
+    }
 
     // 保存作品记录
     const artwork = {
