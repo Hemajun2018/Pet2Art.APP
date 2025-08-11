@@ -38,18 +38,7 @@
   gle（生产）
   7. 复制客户端 ID 和密钥到对应配置项
 
-  第四步：配置支付系统
-
-  选项 A：Creem（推荐）
-
-  1. 访问 https://creem.io
-  2. 注册并登录
-  3. 在 Dashboard 获取 API Key
-  4. 配置 Webhook：
-    - URL: https://你的域名/api/creem-webhook
-    - 订阅事件：所有支付相关事件
-
-  选项 B：Stripe
+  第四步：配置支付系统（Stripe）
 
   1. 访问 https://dashboard.stripe.com
   2. 获取 Publishable key 和 Secret key

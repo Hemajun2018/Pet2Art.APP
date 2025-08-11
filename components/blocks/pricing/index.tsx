@@ -43,11 +43,8 @@ export default function Pricing({ pricing }: { pricing: PricingType }) {
       setIsLoading(true);
       setProductId(item.product_id);
 
-      // Check if Creem is enabled
-      const useCreem = process.env.NEXT_PUBLIC_CREEM_ENABLED === "true";
-      const endpoint = useCreem ? "/api/creem-checkout" : "/api/checkout";
-      
-      const response = await fetch(endpoint, {
+      // 切换到 Creem 结账
+      const response = await fetch("/api/creem-checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,39 +60,19 @@ export default function Pricing({ pricing }: { pricing: PricingType }) {
         return;
       }
 
-      const { code, message, data } = await response.json();
-      if (code !== 0) {
-        toast.error(message);
+      const resJson = await response.json();
+      if (resJson.code !== 0) {
+        toast.error(resJson.message || "checkout failed");
         return;
       }
 
-      if (useCreem) {
-        // Creem checkout - redirect to checkout URL
-        const { checkout_url } = data;
-        if (checkout_url) {
-          window.location.href = checkout_url;
-        } else {
-          toast.error("Failed to create checkout session");
-        }
-      } else {
-        // Legacy Stripe checkout
-        const { loadStripe } = await import("@stripe/stripe-js");
-        const { public_key, session_id } = data;
-
-        const stripe = await loadStripe(public_key);
-        if (!stripe) {
-          toast.error("checkout failed");
-          return;
-        }
-
-        const result = await stripe.redirectToCheckout({
-          sessionId: session_id,
-        });
-
-        if (result.error) {
-          toast.error(result.error.message);
-        }
+      const { checkout_url } = resJson.data || {};
+      if (!checkout_url) {
+        toast.error("invalid checkout url");
+        return;
       }
+
+      window.location.href = checkout_url;
     } catch (e) {
       console.log("checkout failed: ", e);
 

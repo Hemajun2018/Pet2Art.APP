@@ -170,6 +170,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      creem:
+        specifier: ^0.3.37
+        version: 0.3.37(zod@3.24.1)
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -3296,6 +3299,16 @@ packages:
 
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+
+  creem@0.3.37:
+    resolution: {integrity: sha512-IDVmO9+MWXlsN+2YnC+sIdEicmsAOjiDiSQEfjqFswxh1dCwcsbvce046EomMXGxAkuuxZozQkXYvGPejBgrJA==}
+    hasBin: true
+    peerDependencies:
+      '@modelcontextprotocol/sdk': '>=1.5.0 <1.10.0'
+      zod: '>= 3'
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
 
   crelt@1.0.6:
     resolution: {integrity: sha512-VQ2MBenTq1fWZUH9DJNGti7kKv6EeAuYr3cLwxUWhIu1baTaXh4Ib5W2CqHVqib4/MqbYGJqiL3Zb8GJZr3l4g==}
@@ -9665,6 +9678,10 @@ snapshots:
       toggle-selection: 1.0.6
 
   create-require@1.1.1: {}
+
+  creem@0.3.37(zod@3.24.1):
+    dependencies:
+      zod: 3.24.1
 
   crelt@1.0.6: {}
 

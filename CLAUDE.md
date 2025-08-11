@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Styling**: Tailwind CSS v4 with Shadcn UI components
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: NextAuth v5 (beta) with Google, GitHub, and Google One Tap providers
-- **Payments**: Creem and Stripe integration
+- **Payments**: Stripe integration
 - **Internationalization**: next-intl with support for multiple locales
 - **State Management**: React Context API
 - **AI SDKs**: OpenAI, DeepSeek, Replicate, and custom Kling provider
@@ -89,7 +89,7 @@ pnpm generate-previews:dry  # Dry run without generating
 1. **Authentication Flow**: NextAuth with multiple providers, session stored in JWT
 2. **Database Access**: Supabase client with service role key for server-side operations
 3. **Internationalization**: URL-based locale routing (`/[locale]/...`)
-4. **Payment Integration**: Dual support for Creem and Stripe with webhook handling
+4. **Payment Integration**: Stripe with webhook handling
 5. **Admin System**: Role-based access with dedicated admin routes
 6. **AI Features**: Template-based pet art generation with credit system
 
@@ -99,7 +99,7 @@ Key environment variables to configure:
 
 - **Database**: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 - **Auth**: `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`
-- **Payments**: `CREEM_API_KEY`, `CREEM_WEBHOOK_SECRET`, `STRIPE_PUBLIC_KEY`, `STRIPE_PRIVATE_KEY`
+- **Payments**: `STRIPE_PUBLIC_KEY`, `STRIPE_PRIVATE_KEY`
 - **Storage**: AWS S3-compatible storage configuration
 - **Analytics**: Google Analytics, OpenPanel, or Plausible
 

@@ -7,7 +7,7 @@ import { Table as TableSlotType } from "@/types/slots/table";
 import { getTranslations } from "next-intl/server";
 import moment from "moment";
 import { redirect } from "next/navigation";
-import SubscriptionManager from "@/components/SubscriptionManager";
+// Subscription management temporarily removed while payment system is refactored
 
 export default async function () {
   const t = await getTranslations();
@@ -71,11 +71,7 @@ export default async function () {
 
   return (
     <div className="space-y-6">
-      {/* Subscription Management */}
-      <div className="bg-card rounded-lg p-6 border">
-        <h3 className="font-semibold text-lg mb-4">Manage Subscriptions</h3>
-        <SubscriptionManager />
-      </div>
+      {/* Subscription Management removed */}
       
       {/* Orders Table */}
       <TableSlot {...table} />

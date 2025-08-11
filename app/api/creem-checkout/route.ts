@@ -1,12 +1,11 @@
 import { getUserEmail, getUserUuid } from "@/services/user";
-import { insertOrder, updateOrderSession } from "@/models/order";
+import { insertOrder } from "@/models/order";
 import { respData, respErr } from "@/lib/resp";
 import { Order } from "@/types/order";
-import { findUserByUuid } from "@/models/user";
 import { getSnowId } from "@/lib/hash";
 import { getPricingPage } from "@/services/page";
 import { PricingItem } from "@/types/blocks/pricing";
-import { CreemClient } from "@/lib/creem";
+import { Creem } from "creem";
 
 export async function POST(req: Request) {
   try {
@@ -23,8 +22,7 @@ export async function POST(req: Request) {
 
     if (!cancel_url) {
       cancel_url = `${
-        process.env.NEXT_PUBLIC_PAY_CANCEL_URL ||
-        process.env.NEXT_PUBLIC_WEB_URL
+        process.env.NEXT_PUBLIC_PAY_CANCEL_URL || process.env.NEXT_PUBLIC_WEB_URL
       }`;
     }
 
@@ -32,14 +30,13 @@ export async function POST(req: Request) {
       return respErr("invalid params");
     }
 
-    // validate checkout params
     const page = await getPricingPage("en");
     if (!page || !page.pricing || !page.pricing.items) {
       return respErr("invalid pricing table");
     }
 
     const item = page.pricing.items.find(
-      (item: PricingItem) => item.product_id === product_id
+      (it: PricingItem) => it.product_id === product_id
     );
     if (
       !item ||
@@ -74,12 +71,6 @@ export async function POST(req: Request) {
 
     let user_email = await getUserEmail();
     if (!user_email) {
-      const user = await findUserByUuid(user_uuid);
-      if (user) {
-        user_email = user.email;
-      }
-    }
-    if (!user_email) {
       return respErr("invalid user");
     }
 
@@ -89,105 +80,70 @@ export async function POST(req: Request) {
     const created_at = currentDate.toISOString();
 
     let expired_at = "";
-
     const timePeriod = new Date(currentDate);
     timePeriod.setMonth(currentDate.getMonth() + valid_months);
-
     const timePeriodMillis = timePeriod.getTime();
     let delayTimeMillis = 0;
-
-    // subscription
     if (is_subscription) {
-      delayTimeMillis = 24 * 60 * 60 * 1000; // delay 24 hours expired
+      // 订阅单额外延迟有效期一天，避免临界点
+      delayTimeMillis = 24 * 60 * 60 * 1000;
     }
-
     const newTimeMillis = timePeriodMillis + delayTimeMillis;
     const newDate = new Date(newTimeMillis);
-
     expired_at = newDate.toISOString();
 
     const order: Order = {
-      order_no: order_no,
-      created_at: created_at,
-      user_uuid: user_uuid,
-      user_email: user_email,
-      amount: amount,
-      interval: interval,
-      expired_at: expired_at,
+      order_no,
+      created_at,
+      user_uuid,
+      user_email,
+      amount,
+      interval,
+      expired_at,
       status: "created",
-      credits: credits,
-      currency: currency,
-      product_id: product_id,
-      product_name: product_name,
-      valid_months: valid_months,
+      credits,
+      currency,
+      product_id,
+      product_name,
+      valid_months,
     };
     await insertOrder(order);
 
-    // Initialize Creem client
-    const creemApiKey = process.env.CREEM_API_KEY;
-    if (!creemApiKey) {
-      throw new Error("Creem API key is not configured");
+    const apiKey = process.env.CREEM_API_KEY;
+    const successUrl = process.env.SUCCESS_URL || process.env.NEXT_PUBLIC_PAY_SUCCESS_URL;
+    if (!apiKey || !successUrl) {
+      return respErr("invalid creem config");
     }
 
-    const creem = new CreemClient(creemApiKey);
+    const serverIdxStr = process.env.CREEM_SERVER_IDX;
+    const serverIdx = serverIdxStr ? Number(serverIdxStr) : 1; // 1: test server per template
+    const creem = new Creem({ serverIdx });
 
-    // Create Creem checkout session
-    const session = await creem.createCheckoutSession({
-      success_url: `${process.env.NEXT_PUBLIC_WEB_URL}/pay-success/{CHECKOUT_SESSION_ID}`,
-      cancel_url: cancel_url,
-      customer_email: user_email,
-      metadata: {
-        project: process.env.NEXT_PUBLIC_PROJECT_NAME || "",
-        product_name: product_name,
-        order_no: order_no.toString(),
-        user_email: user_email,
-        credits: credits.toString(),
-        user_uuid: user_uuid,
-      },
-      line_items: [
-        {
-          price_data: {
-            currency: currency.toLowerCase(),
-            product_data: {
-              name: product_name,
-                description: `${credits} credits for Pet2Art`,
-            },
-            unit_amount: amount,
-            recurring: is_subscription
-              ? {
-                  interval: interval as 'month' | 'year',
-                }
-              : undefined,
-          },
-          quantity: 1,
+    const checkout = await creem.createCheckout({
+      xApiKey: apiKey,
+      createCheckoutRequest: {
+        productId: product_id,
+        successUrl,
+        // 使用订单号作为 requestId，方便 webhook 直接定位订单
+        requestId: String(order_no),
+        metadata: {
+          orderNo: String(order_no),
+          email: user_email,
+          userId: user_uuid,
+          productName: product_name,
+          credits,
+          currency,
+          amount,
+          interval,
         },
-      ],
-      mode: is_subscription ? "subscription" : "payment",
-      allow_promotion_codes: true,
-    });
-
-    const creem_session_id = session.id;
-    const order_detail = JSON.stringify({
-      creem_session: session,
-      checkout_params: {
-        product_id,
-        product_name,
-        credits,
-        amount,
-        currency,
-        interval,
       },
     });
 
-    await updateOrderSession(order_no, creem_session_id, order_detail);
-
-    return respData({
-      checkout_url: session.url,
-      order_no: order_no,
-      session_id: creem_session_id,
-    });
+    return respData({ checkout_url: checkout.checkoutUrl, order_no });
   } catch (e: any) {
     console.log("creem checkout failed: ", e);
     return respErr("checkout failed: " + e.message);
   }
 }
+
+
