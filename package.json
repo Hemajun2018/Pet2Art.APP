@@ -1,9 +1,9 @@
 {
-  "name": "shipany-template-one",
-  "version": "2.0.0",
+  "name": "pet2art",
+  "version": "1.0.0",
   "private": true,
-  "author": "idoubi",
-  "homepage": "https://shipany.ai",
+  "author": "Pet2Art Team",
+  "homepage": "https://pet2art.app",
   "scripts": {
     "dev": "cross-env NODE_NO_WARNINGS=1 next dev --turbopack",
     "build": "next build",
