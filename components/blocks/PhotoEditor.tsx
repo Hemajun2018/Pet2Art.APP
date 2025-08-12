@@ -654,6 +654,7 @@ export default function PetArtGenerator() {
                       width={400}
                       height={400}
                       className="object-contain rounded-lg"
+                      priority
                       unoptimized
                       onError={(e) => {
                         // 如果预览图不存在，显示默认内容

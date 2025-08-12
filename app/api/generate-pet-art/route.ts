@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { insertArtwork } from "@/models/artwork";
-import { insertCredit } from "@/models/credit";
-import { findUserByUuid } from "@/models/user";
 import { v4 as uuidv4 } from "uuid";
 import { getIsoTimestr } from "@/lib/time";
 import { newStorage } from "@/lib/storage";
@@ -64,18 +62,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 检查用户积分
-    const user_uuid = session.user.id;
+    // 检查用户积分 - 使用 getUserCredits 函数直接获取
+    const user_uuid = session.user.id; // 这里的 id 实际上就是 uuid (见 auth/config.ts:146)
     console.log('User UUID:', user_uuid);
-    const userCreditsResp = await fetch(`${process.env.NEXT_PUBLIC_WEB_URL}/api/get-user-credits`, {
-      method: "POST",
-      headers: {
-        'Cookie': req.headers.get('cookie') || '',
-      },
-    });
     
-    const creditsData = await userCreditsResp.json();
-    const userCredits = creditsData.data?.left_credits || 0;
+    // 直接导入并使用 getUserCredits 函数，避免内部 API 调用
+    const { getUserCredits } = await import("@/services/credit");
+    const creditsResult = await getUserCredits(user_uuid);
+    const userCredits = creditsResult.left_credits || 0;
+    console.log('User credits:', userCredits);
 
     if (userCredits < 1) {
       return NextResponse.json(
@@ -234,19 +229,13 @@ export async function POST(req: NextRequest) {
 
     await insertArtwork(artwork);
 
-    // 扣除积分
-    const creditRecord: any = {
-      trans_no: `deduct_${uuidv4()}`,
+    // 扣除积分 - 使用标准的 decreaseCredits 函数
+    const { decreaseCredits, CreditsTransType } = await import("@/services/credit");
+    await decreaseCredits({
       user_uuid,
-      trans_type: "deduct",
-      credits: -1,  // 扣除积分应该是负数
-      description: `Generated artwork: ${templateName || templateId}`,
-      order_no: null,  // 使用 null 而不是空字符串
-      expired_at: null,  // 使用 null 而不是空字符串
-      created_at: getIsoTimestr(),
-    };
-    
-    await insertCredit(creditRecord);
+      trans_type: CreditsTransType.Ping, // 使用 Ping 类型表示生成消耗
+      credits: 1,
+    });
 
     return NextResponse.json({
       success: true,
