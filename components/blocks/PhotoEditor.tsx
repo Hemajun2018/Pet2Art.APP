@@ -214,41 +214,139 @@ export default function PetArtGenerator() {
         ? `${sanitizedCustomPrompt}${ratioPrompt}` 
         : ratioPrompt.slice(2)
 
-      // 调用后端API生成图片（包含积分扣除和作品保存）
-      const formData = new FormData()
-      formData.append('petImage', petImage)
-      formData.append('templateImageUrl', selectedTemplate.image)
-      formData.append('customPrompt', fullCustomPrompt)
-      formData.append('aspectRatio', selectedRatio)
-      formData.append('templateId', selectedTemplate.name)
-      formData.append('templateName', selectedTemplate.name)
-      formData.append('templateCategory', selectedTemplate.category || '')
+      const generationStartTime = Date.now()
 
-      const response = await fetch('/api/generate-pet-art', {
+      // Step 1: 先调用后端API验证并扣除积分
+      const prepareResponse = await fetch('/api/generate-pet-art/prepare', {
         method: 'POST',
-        body: formData
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          templateId: selectedTemplate.name,
+          templateName: selectedTemplate.name,
+          templateCategory: selectedTemplate.category || '',
+          aspectRatio: selectedRatio,
+        })
       })
 
-      const result = await response.json()
+      const prepareResult = await prepareResponse.json()
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || 'Generation failed')
+      if (!prepareResponse.ok || !prepareResult.success) {
+        throw new Error(prepareResult.message || 'Failed to prepare generation')
       }
 
-      setGeneratedImage(result.data.generated_image_url)
+      const { artwork_id, remaining_credits } = prepareResult.data
+      
+      // 更新用户积分显示
+      setUserCredits(remaining_credits)
+
+      // Step 2: 前端直接调用 AI API（不受 Vercel 超时限制）
+      const API_KEY = process.env.NEXT_PUBLIC_PET_AI_API_KEY || ''
+      const API_URL = process.env.NEXT_PUBLIC_PET_AI_API_URL || 'https://api.apicore.ai/v1/images/edits'
+
+      // 准备 AI API 请求
+      const aiFormData = new FormData()
+      
+      // 获取模板图片
+      const baseUrl = window.location.origin
+      const fullTemplateUrl = selectedTemplate.image.startsWith('http') 
+        ? selectedTemplate.image 
+        : `${baseUrl}${selectedTemplate.image}`
+      
+      const templateResponse = await fetch(fullTemplateUrl)
+      if (!templateResponse.ok) {
+        throw new Error('Failed to fetch template image')
+      }
+      
+      const templateBlob = await templateResponse.blob()
+      const templateFile = new File([templateBlob], 'template.jpg', { type: 'image/jpeg' })
+      aiFormData.append('image', templateFile)
+      
+      // 添加用户宠物照片
+      aiFormData.append('image', petImage)
+      
+      // 构建提示词
+      const basePrompt = 'Replace the pet in the first image with the pet from the second image, keeping the clothing, style, and background unchanged'
+      const prompt = fullCustomPrompt ? `${basePrompt}. ${fullCustomPrompt}` : basePrompt
+      aiFormData.append('prompt', prompt)
+      
+      // 其他参数
+      aiFormData.append('n', '1')
+      aiFormData.append('response_format', 'url')
+      aiFormData.append('model', 'gpt-4o-image')
+      aiFormData.append('user', artwork_id)
+      
+      // 设置图片尺寸
+      const sizeMap: Record<string, string> = {
+        'Auto': '768x1024',
+        '1:1': '1024x1024',
+        '4:3': '1024x768',
+        '3:4': '768x1024',
+        '16:9': '1024x576',
+        '9:16': '576x1024'
+      }
+      
+      const size = sizeMap[selectedRatio] || sizeMap['Auto']
+      aiFormData.append('size', size)
+
+      // 调用 AI API（前端直接调用，不受超时限制）
+      const aiResponse = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${API_KEY}`
+        },
+        body: aiFormData,
+      })
+
+      if (!aiResponse.ok) {
+        const errorText = await aiResponse.text()
+        console.error(`AI API error: ${errorText}`)
+        throw new Error('Failed to generate image')
+      }
+
+      const aiData = await aiResponse.json()
+      
+      if (!aiData.data || aiData.data.length === 0) {
+        throw new Error('No image generated')
+      }
+
+      const generatedImageUrl = aiData.data[0].url
+      const generationTime = Date.now() - generationStartTime
+
+      // Step 3: 保存生成结果到后端
+      const completeResponse = await fetch('/api/generate-pet-art/complete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          artwork_id,
+          generated_image_url: generatedImageUrl,
+          generation_time: generationTime,
+          prompt: prompt,
+          custom_requirements: fullCustomPrompt,
+        })
+      })
+
+      const completeResult = await completeResponse.json()
+
+      if (!completeResponse.ok || !completeResult.success) {
+        // 即使保存失败，也显示生成的图片
+        console.error('Failed to save result:', completeResult.message)
+      }
+
+      setGeneratedImage(generatedImageUrl)
       
       // Complete progress
       setGenerationProgress(100)
       setGenerationMessage('Generation complete!')
       
-      // 更新用户积分
-      setUserCredits(result.data.remaining_credits)
-      
       // 刷新积分显示
       await fetchUserCredits()
       
       // 显示成功提示
-      const elapsed = startTime ? Math.round((Date.now() - startTime) / 1000) : 0
+      const elapsed = Math.round(generationTime / 1000)
       console.log(`Generation completed in ${elapsed} seconds`)
       
       // 清理定时器
