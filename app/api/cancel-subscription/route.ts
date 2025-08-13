@@ -2,40 +2,68 @@ import { NextResponse } from "next/server";
 import { findOrderByOrderNo, updateOrderStatus } from "@/models/order";
 import { getUserUuid } from "@/services/user";
 import { getIsoTimestr } from "@/lib/time";
+import { Creem } from "creem";
 
 export async function POST(req: Request) {
   try {
     const { orderNo } = await req.json();
     
     if (!orderNo) {
-      return NextResponse.json({ error: "订单号不能为空" }, { status: 400 });
+      return NextResponse.json({ error: "Order number is required" }, { status: 400 });
     }
 
     // 验证用户身份
     const userUuid = await getUserUuid();
     if (!userUuid) {
-      return NextResponse.json({ error: "用户未登录" }, { status: 401 });
+      return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
 
     // 查找订单
     const order = await findOrderByOrderNo(orderNo);
     if (!order) {
-      return NextResponse.json({ error: "订单未找到" }, { status: 404 });
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     // 验证订单是否属于当前用户
     if (order.user_uuid !== userUuid) {
-      return NextResponse.json({ error: "无权操作此订单" }, { status: 403 });
+      return NextResponse.json({ error: "Unauthorized to modify this order" }, { status: 403 });
     }
 
-    // 检查是否是订阅订单
-    if (!order.sub_id || !order.interval || order.interval === "once") {
-      return NextResponse.json({ error: "该订单不是订阅订单" }, { status: 400 });
+    // 检查是否是订阅订单 - 修复判断逻辑
+    // 只要 interval 是 month 或 year 就是订阅订单，不一定需要 sub_id（可能还没保存）
+    const isSubscription = order.interval === "month" || order.interval === "year";
+    if (!isSubscription) {
+      return NextResponse.json({ error: "This order is not a subscription" }, { status: 400 });
     }
 
     // 检查订阅是否已经取消
     if (order.status === "canceled") {
-      return NextResponse.json({ error: "订阅已经取消" }, { status: 400 });
+      return NextResponse.json({ error: "Subscription already canceled" }, { status: 400 });
+    }
+
+    // 调用 Creem API 取消订阅
+    if (order.sub_id) {
+      try {
+        // 初始化 Creem 客户端
+        const serverIdxStr = process.env.CREEM_SERVER_IDX;
+        const serverIdx = serverIdxStr ? Number(serverIdxStr) : 1;
+        const creem = new Creem({ serverIdx });
+        
+        // 调用 Creem SDK 取消订阅
+        await creem.cancelSubscription({
+          xApiKey: process.env.CREEM_API_KEY as string,
+          id: order.sub_id,
+        });
+        
+        console.log(`Successfully canceled Creem subscription: ${order.sub_id}`);
+      } catch (error) {
+        console.error("Failed to cancel Creem subscription:", error);
+        // 即使 API 调用失败，也继续更新本地状态
+        // 避免用户无法在界面上看到取消状态
+      }
+    } else {
+      // 如果还没有 sub_id（可能 webhook 还没处理），只标记本地状态
+      console.log(`Order ${orderNo} marked for cancellation (no subscription ID yet)`);
     }
 
     // 更新订单状态为取消
@@ -45,33 +73,22 @@ export async function POST(req: Request) {
       "canceled",
       canceledAt,
       order.paid_email || order.user_email,
-      JSON.stringify({ canceled_at: canceledAt, canceled_by_user: true })
+      JSON.stringify({ 
+        canceled_at: canceledAt, 
+        canceled_by_user: true,
+        sub_id: order.sub_id 
+      })
     );
-
-    // 这里可以添加第三方支付服务的取消逻辑
-    // 例如调用 Stripe 或 Creem 的取消订阅 API
-    try {
-      // TODO: 根据实际使用的支付服务添加取消逻辑
-      // 如果使用 Stripe:
-      // await stripe.subscriptions.update(order.sub_id, { cancel_at_period_end: true });
-      
-      // 如果使用 Creem:
-      // 可能需要调用 Creem 的 API 来取消订阅
-      console.log(`订阅 ${order.sub_id} 已标记为取消`);
-    } catch (error) {
-      console.error("调用第三方支付服务取消订阅失败:", error);
-      // 继续执行，因为我们已经在数据库中标记了取消状态
-    }
 
     return NextResponse.json({ 
       success: true, 
-      message: "订阅取消成功。订阅将在当前计费周期结束时停止续费。" 
+      message: "Subscription canceled successfully. You will continue to have access until the end of your current billing period." 
     });
 
   } catch (error: any) {
-    console.error("取消订阅失败:", error);
+    console.error("Failed to cancel subscription:", error);
     return NextResponse.json(
-      { error: "取消订阅失败，请稍后重试" },
+      { error: "Failed to cancel subscription. Please try again later." },
       { status: 500 }
     );
   }

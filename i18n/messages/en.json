@@ -49,7 +49,7 @@
       "github_username": "Username",
       "status": "Status",
       "subscription_status": "Subscription",
-      "cancel_subscription": "Cancel",
+      "cancel_subscription": "Cancel subscription",
       "canceled": "Canceled"
     }
   },

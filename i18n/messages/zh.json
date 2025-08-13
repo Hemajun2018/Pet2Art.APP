@@ -47,7 +47,10 @@
       "amount": "金额",
       "paid_at": "支付时间",
       "github_username": "GitHub 用户名",
-      "status": "状态"
+      "status": "状态",
+      "subscription_status": "订阅状态",
+      "cancel_subscription": "取消订阅",
+      "canceled": "已取消"
     }
   },
   "my_credits": {

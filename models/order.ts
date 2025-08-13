@@ -35,6 +35,23 @@ export async function findOrderByOrderNo(
   return data;
 }
 
+export async function findOrderBySubId(
+  sub_id: string
+): Promise<Order | undefined> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("sub_id", sub_id)
+    .single();
+
+  if (error) {
+    return undefined;
+  }
+
+  return data;
+}
+
 export async function getFirstPaidOrderByUserUuid(
   user_uuid: string
 ): Promise<Order | undefined> {
