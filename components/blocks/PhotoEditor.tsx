@@ -241,10 +241,9 @@ export default function PetArtGenerator() {
       // 更新用户积分显示
       setUserCredits(remaining_credits)
 
-      // Step 2: 前端直接调用 AI API（不受 Vercel 超时限制）
-      const API_KEY = process.env.NEXT_PUBLIC_PET_AI_API_KEY || ''
-      const API_URL = process.env.NEXT_PUBLIC_PET_AI_API_URL || 'https://api.apicore.ai/v1/images/edits'
-
+      // Step 2: 直接从前端调用 AI API
+      // 不再使用后端代理，避免 Vercel 60秒超时问题
+      
       // 准备 AI API 请求
       const aiFormData = new FormData()
       
@@ -290,13 +289,23 @@ export default function PetArtGenerator() {
       const size = sizeMap[selectedRatio] || sizeMap['Auto']
       aiFormData.append('size', size)
 
-      // 调用 AI API（前端直接调用，不受超时限制）
+      // 直接调用 AI API（前端）
+      // 从环境变量获取 API 配置
+      const API_KEY = process.env.NEXT_PUBLIC_PET_AI_API_KEY
+      const API_URL = process.env.NEXT_PUBLIC_PET_AI_API_URL || 'https://api.apicore.ai/v1/images/edits'
+      
+      if (!API_KEY) {
+        throw new Error('AI API key not configured')
+      }
+      
       const aiResponse = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${API_KEY}`
         },
         body: aiFormData,
+        // 设置较长的超时时间（客户端超时）
+        signal: AbortSignal.timeout(300000) // 5分钟
       })
 
       if (!aiResponse.ok) {
