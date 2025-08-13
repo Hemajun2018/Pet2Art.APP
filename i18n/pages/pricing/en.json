@@ -105,7 +105,7 @@
         "features_title": "One-time purchase",
         "features": [
           "50 credits pack",
-          "Never expires",
+          "Valid for 12 months",
           "All features included",
           "Use anytime",
           "Share with friends",
@@ -128,7 +128,7 @@
         "product_id": "prod_27rV1Mj7rtnRh6JQ8FUkas",
         "product_name": "Pet2Art Credits Pack",
         "credits": 50,
-        "valid_months": 0
+        "valid_months": 12
       }
     ]
   }

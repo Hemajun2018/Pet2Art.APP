@@ -249,6 +249,11 @@ export default function Pricing({ pricing }: { pricing: PricingType }) {
                             if (isLoading) {
                               return;
                             }
+                            // 免费试用直接跳转到生图页面
+                            if (item.product_id === "free" || item.amount === 0) {
+                              window.location.href = "/#generate-section";
+                              return;
+                            }
                             handleCheckout(item);
                           }}
                         >

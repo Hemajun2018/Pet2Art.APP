@@ -128,13 +128,19 @@ export default function MyArtworksPage() {
   const renderArtworkCard = (artwork: Artwork, isFavorites = false) => (
     <Card key={artwork.artwork_id} className="overflow-hidden">
       <div className="relative aspect-[3/4]">
-        <Image
-          src={artwork.generated_image_url}
-          alt={artwork.template_name || "Pet Art"}
-          fill
-          className="object-cover"
-          unoptimized
-        />
+        {artwork.generated_image_url ? (
+          <Image
+            src={artwork.generated_image_url}
+            alt={artwork.template_name || "Pet Art"}
+            fill
+            className="object-cover"
+            unoptimized
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-500">No image</span>
+          </div>
+        )}
         {artwork.is_public && (
           <Badge className="absolute top-2 left-2" variant="secondary">
             Public
@@ -163,7 +169,8 @@ export default function MyArtworksPage() {
         <Button
           size="sm"
           variant="outline"
-          onClick={() => handleDownload(artwork.generated_image_url, artwork.artwork_id)}
+          disabled={!artwork.generated_image_url}
+          onClick={() => artwork.generated_image_url && handleDownload(artwork.generated_image_url, artwork.artwork_id)}
         >
           Download
         </Button>
