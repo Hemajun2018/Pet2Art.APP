@@ -18,8 +18,20 @@ export default function SubscriptionActions({ order }: SubscriptionActionsProps)
     router.refresh();
   };
 
-  // Only show cancel button for active subscriptions
-  if (!order.sub_id || !order.interval || order.interval === "once" || order.status === "canceled") {
+  // Debug: Log order details to console
+  console.log("Order debug info:", {
+    order_no: order.order_no,
+    sub_id: order.sub_id,
+    interval: order.interval,
+    status: order.status,
+    hasSubId: !!order.sub_id,
+    hasInterval: !!order.interval,
+    isOnce: order.interval === "once",
+    isCanceled: order.status === "canceled"
+  });
+
+  // Show cancel button for subscriptions (with or without sub_id for testing)
+  if (!order.interval || order.interval === "once" || order.status === "canceled") {
     return <span className="text-muted-foreground">-</span>;
   }
 

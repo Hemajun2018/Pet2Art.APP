@@ -55,7 +55,7 @@ export default function OrdersTable({ orders }: OrdersTableProps) {
               {moment(order.paid_at).format("YYYY-MM-DD HH:mm:ss")}
             </TableCell>
             <TableCell>
-              {!order.sub_id || !order.interval || order.interval === "once" 
+              {!order.interval || order.interval === "once" 
                 ? "-" 
                 : order.status === "canceled" 
                   ? t("my_orders.table.canceled")

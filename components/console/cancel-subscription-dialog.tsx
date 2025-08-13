@@ -70,11 +70,13 @@ export default function CancelSubscriptionDialog({
           <AlertDialogTitle>
             {t("cancel_subscription.title")}
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <p>{t("cancel_subscription.description")}</p>
-            <p className="text-sm text-muted-foreground">
-              {t("cancel_subscription.warning")}
-            </p>
+          <AlertDialogDescription asChild>
+            <div className="space-y-2">
+              <p>{t("cancel_subscription.description")}</p>
+              <p className="text-sm text-muted-foreground">
+                {t("cancel_subscription.warning")}
+              </p>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
