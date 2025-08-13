@@ -10,8 +10,7 @@
     "credits": "Credits",
     "api_keys": "API Keys",
     "my_orders": "My Orders",
-    "user_center": "My Account",
-    "admin_system": "Admin Panel"
+    "user_center": "Settings"
   },
   "sign_modal": {
     "sign_in_title": "Welcome Back",
@@ -48,7 +47,10 @@
       "amount": "Amount",
       "paid_at": "Purchase Date",
       "github_username": "Username",
-      "status": "Status"
+      "status": "Status",
+      "subscription_status": "Subscription",
+      "cancel_subscription": "Cancel",
+      "canceled": "Canceled"
     }
   },
   "my_credits": {
@@ -121,5 +123,14 @@
     "contact_tip": "Need help? Contact support",
     "rating_tip": "How's your Pet2Art experience?",
     "placeholder": "Tell us what you think..."
+  },
+  "cancel_subscription": {
+    "title": "Cancel Subscription",
+    "description": "Are you sure you want to cancel your subscription?",
+    "warning": "Your subscription will remain active until the end of the current billing period.",
+    "confirm": "Yes, Cancel Subscription",
+    "cancel": "Keep Subscription",
+    "success": "Subscription canceled successfully",
+    "error": "Failed to cancel subscription"
   }
 }

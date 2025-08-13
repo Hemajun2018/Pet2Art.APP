@@ -1,13 +1,9 @@
 import { getOrdersByPaidEmail, getOrdersByUserUuid } from "@/models/order";
 import { getUserEmail, getUserUuid } from "@/services/user";
-
-import { TableColumn } from "@/types/blocks/table";
-import TableSlot from "@/components/console/slots/table";
-import { Table as TableSlotType } from "@/types/slots/table";
 import { getTranslations } from "next-intl/server";
-import moment from "moment";
 import { redirect } from "next/navigation";
-// Subscription management temporarily removed while payment system is refactored
+import OrdersTable from "./orders-table";
+import { Separator } from "@/components/ui/separator";
 
 export default async function () {
   const t = await getTranslations();
@@ -25,56 +21,14 @@ export default async function () {
     orders = await getOrdersByPaidEmail(user_email);
   }
 
-  const columns: TableColumn[] = [
-    { name: "order_no", title: t("my_orders.table.order_no") },
-    { name: "paid_email", title: t("my_orders.table.email") },
-    { name: "product_name", title: t("my_orders.table.product_name") },
-    {
-      name: "amount",
-      title: t("my_orders.table.amount"),
-      callback: (item: any) =>
-        `${item.currency.toUpperCase() === "CNY" ? "¥" : "$"} ${
-          item.amount / 100
-        }`,
-    },
-    {
-      name: "paid_at",
-      title: t("my_orders.table.paid_at"),
-      callback: (item: any) =>
-        moment(item.paid_at).format("YYYY-MM-DD HH:mm:ss"),
-    },
-  ];
-
-  const table: TableSlotType = {
-    title: t("my_orders.title"),
-    toolbar: {
-      items: [
-        {
-          title: t("my_orders.read_docs"),
-          icon: "RiBookLine",
-          url: "https://docs.shipany.ai",
-          target: "_blank",
-          variant: "outline",
-        },
-        {
-          title: t("my_orders.join_discord"),
-          icon: "RiDiscordFill",
-          url: "https://discord.gg/HQNnrzjZQS",
-          target: "_blank",
-        },
-      ],
-    },
-    columns: columns,
-    data: orders,
-    empty_message: t("my_orders.no_orders"),
-  };
-
   return (
     <div className="space-y-6">
-      {/* Subscription Management removed */}
-      
-      {/* Orders Table */}
-      <TableSlot {...table} />
+      <div>
+        <h3 className="text-lg font-medium">{t("my_orders.title")}</h3>
+        <p className="text-sm text-muted-foreground">{t("my_orders.description")}</p>
+      </div>
+      <Separator />
+      <OrdersTable orders={orders || []} />
     </div>
   );
 }

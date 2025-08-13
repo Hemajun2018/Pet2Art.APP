@@ -34,12 +34,6 @@ export default async function ({ children }: { children: ReactNode }) {
           icon: "RiBankCardLine",
           is_active: false,
         },
-        {
-          title: t("my_invites.title"),
-          url: "/my-invites",
-          icon: "RiMoneyCnyCircleFill",
-          is_active: false,
-        },
       ],
     },
   };
