@@ -45,7 +45,7 @@
     ],
     "show_sign": true,
     "show_theme": true,
-    "show_locale": true
+    "show_locale": false
   },
   "hero": {
     "title": "Transform Your Pet Into Stunning Art",
