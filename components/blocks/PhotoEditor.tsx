@@ -244,8 +244,8 @@ export default function PetArtGenerator() {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              templateId: template.name,
-              templateName: template.name,
+              templateId: template.name.replace(/—/g, '-'), // 替换特殊字符避免ByteString错误
+              templateName: template.name.replace(/—/g, '-'), // 替换特殊字符避免ByteString错误
               templateCategory: template.category || '',
               aspectRatio: selectedRatio,
             })
@@ -348,7 +348,7 @@ export default function PetArtGenerator() {
           return {
             artwork_id,
             url: generatedImageUrl,
-            templateName: template.name,
+            templateName: template.name.replace(/—/g, '-'), // 替换特殊字符避免ByteString错误
             generationTime,
             prompt,
             customRequirements: fullCustomPrompt
