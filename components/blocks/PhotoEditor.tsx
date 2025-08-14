@@ -20,13 +20,14 @@ export default function PetArtGenerator() {
   const { data: session } = useSession()
   const { user, setShowSignModal } = useAppContext()
   
-  const [selectedTemplate, setSelectedTemplate] = useState<PetTemplate | null>(null)
+  const [selectedTemplates, setSelectedTemplates] = useState<PetTemplate[]>([])
+  const [lastSelectedTemplate, setLastSelectedTemplate] = useState<PetTemplate | null>(null) // 追踪最后选择的模版
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [petImage, setPetImage] = useState<File | null>(null)
   const [petImagePreview, setPetImagePreview] = useState<string>("")
   const [selectedRatio, setSelectedRatio] = useState<string>("Auto")
   const [customPrompt, setCustomPrompt] = useState("")
-  const [generatedImage, setGeneratedImage] = useState<string>("")
+  const [generatedImages, setGeneratedImages] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationProgress, setGenerationProgress] = useState(0)
   const [generationMessage, setGenerationMessage] = useState('')
@@ -58,16 +59,7 @@ export default function PetArtGenerator() {
         setTemplateCategories(data.categories)
         setTemplates(data.templates)
         
-        // 默认选择第一个模板
-        const firstCategory = data.categories.find((cat: TemplateCategory) => cat.id === 'all') || data.categories[0]
-        if (firstCategory) {
-          const allTemplates = firstCategory.id === 'all' 
-            ? Object.values(data.templates).flat() 
-            : data.templates[firstCategory.id]
-          if (allTemplates && allTemplates.length > 0) {
-            setSelectedTemplate(allTemplates[0])
-          }
-        }
+        // 不再默认选择模板
       }
     } catch (error) {
       console.error('Failed to load templates:', error)
@@ -142,8 +134,8 @@ export default function PetArtGenerator() {
 
 
   const handleGenerate = async () => {
-    if (!petImage || !selectedTemplate) {
-      alert("Please upload a pet photo and select a template")
+    if (!petImage || selectedTemplates.length === 0) {
+      alert("Please upload a pet photo and select at least one template")
       return
     }
     
@@ -182,8 +174,9 @@ export default function PetArtGenerator() {
     }
 
     // 检查用户积分
-    if (userCredits < 1) {
-      alert("Insufficient credits. Please purchase credits on the pricing page")
+    const requiredCredits = selectedTemplates.length
+    if (userCredits < requiredCredits) {
+      alert(`Insufficient credits. You need ${requiredCredits} credits but only have ${userCredits}. Please purchase more credits.`)
       router.push("/pricing")
       return
     }
@@ -202,8 +195,8 @@ export default function PetArtGenerator() {
     toast.info(
       <div>
         <p className="font-semibold">Generation Started!</p>
-        <p className="text-sm mt-1">This process takes 2-3 minutes. Please don't close the page.</p>
-        <p className="text-sm mt-1">Your artwork will be sent to your registered email when complete.</p>
+        <p className="text-sm mt-1">Generating {selectedTemplates.length} image{selectedTemplates.length > 1 ? 's' : ''}. This takes 2-3 minutes per image.</p>
+        <p className="text-sm mt-1">Your artworks will be sent to your registered email when complete.</p>
       </div>,
       {
         duration: 8000,
@@ -212,6 +205,8 @@ export default function PetArtGenerator() {
     )
 
     setIsGenerating(true)
+    const allGeneratedImages: string[] = []
+    
     try {
       // 构建包含比例要求的提示词
       let ratioPrompt = ""
@@ -231,149 +226,267 @@ export default function PetArtGenerator() {
         ? `${sanitizedCustomPrompt}${ratioPrompt}` 
         : ratioPrompt.slice(2)
 
-      const generationStartTime = Date.now()
+      // 记录总生成时间
+      const batchStartTime = Date.now()
+      
+      // 并行处理所有选中的模板
+      setGenerationMessage(`Processing ${selectedTemplates.length} templates simultaneously...`)
+      
+      // 创建所有生成任务的Promise数组
+      const generationPromises = selectedTemplates.map(async (template, index) => {
+        const generationStartTime = Date.now()
+        
+        try {
+          // Step 1: 先调用后端API验证并扣除积分
+          const prepareResponse = await fetch('/api/generate-pet-art/prepare', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              templateId: template.name,
+              templateName: template.name,
+              templateCategory: template.category || '',
+              aspectRatio: selectedRatio,
+            })
+          })
 
-      // Step 1: 先调用后端API验证并扣除积分
-      const prepareResponse = await fetch('/api/generate-pet-art/prepare', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          templateId: selectedTemplate.name,
-          templateName: selectedTemplate.name,
-          templateCategory: selectedTemplate.category || '',
-          aspectRatio: selectedRatio,
-        })
+          const prepareResult = await prepareResponse.json()
+
+          if (!prepareResponse.ok || !prepareResult.success) {
+            console.error(`Failed to prepare generation for template ${index + 1}:`, prepareResult.message)
+            return null // 返回null表示该模板生成失败
+          }
+
+          const { artwork_id, remaining_credits } = prepareResult.data
+          
+          // 更新用户积分显示
+          setUserCredits(remaining_credits)
+
+          // Step 2: 直接从前端调用 AI API
+          // 准备 AI API 请求
+          const aiFormData = new FormData()
+          
+          // 获取模板图片
+          const baseUrl = window.location.origin
+          const fullTemplateUrl = template.image.startsWith('http') 
+            ? template.image 
+            : `${baseUrl}${template.image}`
+          
+          const templateResponse = await fetch(fullTemplateUrl)
+          if (!templateResponse.ok) {
+            console.error(`Failed to fetch template image for template ${index + 1}`)
+            return null
+          }
+          
+          const templateBlob = await templateResponse.blob()
+          const templateFile = new File([templateBlob], 'template.jpg', { type: 'image/jpeg' })
+          aiFormData.append('image', templateFile)
+          
+          // 添加用户宠物照片
+          aiFormData.append('image', petImage)
+          
+          // 构建提示词
+          const basePrompt = 'Replace the pet in the first image with the pet from the second image, keeping the clothing, style, and background unchanged'
+          const prompt = fullCustomPrompt ? `${basePrompt}. ${fullCustomPrompt}` : basePrompt
+          aiFormData.append('prompt', prompt)
+          
+          // 其他参数
+          aiFormData.append('n', '1')
+          aiFormData.append('response_format', 'url')
+          aiFormData.append('model', 'gpt-4o-image')
+          aiFormData.append('user', artwork_id)
+          
+          // 设置图片尺寸
+          const sizeMap: Record<string, string> = {
+            'Auto': '768x1024',
+            '1:1': '1024x1024',
+            '4:3': '1024x768',
+            '3:4': '768x1024',
+            '16:9': '1024x576',
+            '9:16': '576x1024'
+          }
+          
+          const size = sizeMap[selectedRatio] || sizeMap['Auto']
+          aiFormData.append('size', size)
+
+          // 直接调用 AI API（前端）
+          const API_KEY = process.env.NEXT_PUBLIC_PET_AI_API_KEY
+          const API_URL = process.env.NEXT_PUBLIC_PET_AI_API_URL || 'https://api.apicore.ai/v1/images/edits'
+          
+          if (!API_KEY) {
+            console.error('AI API key not configured')
+            return null
+          }
+          
+          const aiResponse = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${API_KEY}`
+            },
+            body: aiFormData,
+            signal: AbortSignal.timeout(300000) // 5分钟
+          })
+
+          if (!aiResponse.ok) {
+            const errorText = await aiResponse.text()
+            console.error(`AI API error for template ${index + 1}: ${errorText}`)
+            return null
+          }
+
+          const aiData = await aiResponse.json()
+          
+          if (!aiData.data || aiData.data.length === 0) {
+            console.error(`No image generated for template ${index + 1}`)
+            return null
+          }
+
+          const generatedImageUrl = aiData.data[0].url
+          const generationTime = Date.now() - generationStartTime
+
+          // 返回生成结果，包括所有必要信息（不再在这里调用complete API）
+          return {
+            artwork_id,
+            url: generatedImageUrl,
+            templateName: template.name,
+            generationTime,
+            prompt,
+            customRequirements: fullCustomPrompt
+          }
+          
+        } catch (error) {
+          console.error(`Error generating image for template ${index + 1}:`, error)
+          return null // 返回null表示该模板生成失败
+        }
       })
-
-      const prepareResult = await prepareResponse.json()
-
-      if (!prepareResponse.ok || !prepareResult.success) {
-        throw new Error(prepareResult.message || 'Failed to prepare generation')
-      }
-
-      const { artwork_id, remaining_credits } = prepareResult.data
       
-      // 更新用户积分显示
-      setUserCredits(remaining_credits)
-
-      // Step 2: 直接从前端调用 AI API
-      // 不再使用后端代理，避免 Vercel 60秒超时问题
+      // 实时更新进度和已生成的图片
+      let completedCount = 0
+      const totalCount = selectedTemplates.length
       
-      // 准备 AI API 请求
-      const aiFormData = new FormData()
+      // 使用Promise.allSettled确保所有请求都完成（无论成功或失败）
+      const results = await Promise.allSettled(generationPromises.map(async (promise, index) => {
+        const result = await promise
+        completedCount++
+        
+        // 更新进度
+        const overallProgress = (completedCount / totalCount) * 100
+        setGenerationProgress(overallProgress)
+        setGenerationMessage(`Completed ${completedCount} of ${totalCount} templates`)
+        
+        // 如果生成成功，立即添加到显示列表
+        if (result && result.url) {
+          allGeneratedImages.push(result.url)
+          setGeneratedImages([...allGeneratedImages])
+        }
+        
+        return result
+      }))
       
-      // 获取模板图片
-      const baseUrl = window.location.origin
-      const fullTemplateUrl = selectedTemplate.image.startsWith('http') 
-        ? selectedTemplate.image 
-        : `${baseUrl}${selectedTemplate.image}`
+      // 过滤出成功生成的结果
+      const successfulResults = results
+        .filter(result => result.status === 'fulfilled' && result.value)
+        .map(result => (result as PromiseFulfilledResult<any>).value)
+        .filter((result): result is any => result !== null)
       
-      const templateResponse = await fetch(fullTemplateUrl)
-      if (!templateResponse.ok) {
-        throw new Error('Failed to fetch template image')
-      }
-      
-      const templateBlob = await templateResponse.blob()
-      const templateFile = new File([templateBlob], 'template.jpg', { type: 'image/jpeg' })
-      aiFormData.append('image', templateFile)
-      
-      // 添加用户宠物照片
-      aiFormData.append('image', petImage)
-      
-      // 构建提示词
-      const basePrompt = 'Replace the pet in the first image with the pet from the second image, keeping the clothing, style, and background unchanged'
-      const prompt = fullCustomPrompt ? `${basePrompt}. ${fullCustomPrompt}` : basePrompt
-      aiFormData.append('prompt', prompt)
-      
-      // 其他参数
-      aiFormData.append('n', '1')
-      aiFormData.append('response_format', 'url')
-      aiFormData.append('model', 'gpt-4o-image')
-      aiFormData.append('user', artwork_id)
-      
-      // 设置图片尺寸
-      const sizeMap: Record<string, string> = {
-        'Auto': '768x1024',
-        '1:1': '1024x1024',
-        '4:3': '1024x768',
-        '3:4': '768x1024',
-        '16:9': '1024x576',
-        '9:16': '576x1024'
+      // 最终检查是否有成功生成的图片
+      if (successfulResults.length === 0) {
+        throw new Error('Failed to generate any images')
       }
       
-      const size = sizeMap[selectedRatio] || sizeMap['Auto']
-      aiFormData.append('size', size)
-
-      // 直接调用 AI API（前端）
-      // 从环境变量获取 API 配置
-      const API_KEY = process.env.NEXT_PUBLIC_PET_AI_API_KEY
-      const API_URL = process.env.NEXT_PUBLIC_PET_AI_API_URL || 'https://api.apicore.ai/v1/images/edits'
+      // 计算总生成时间
+      const totalGenerationTime = Date.now() - batchStartTime
       
-      if (!API_KEY) {
-        throw new Error('AI API key not configured')
+      // 批量保存结果并发送统一邮件
+      if (successfulResults.length > 0) {
+        // 如果只有一张图片，使用原来的单个完成API
+        if (successfulResults.length === 1) {
+          const result = successfulResults[0]
+          try {
+            const completeResponse = await fetch('/api/generate-pet-art/complete', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                artwork_id: result.artwork_id,
+                generated_image_url: result.url,
+                generation_time: result.generationTime,
+                prompt: result.prompt,
+                custom_requirements: result.customRequirements,
+              })
+            })
+            
+            if (!completeResponse.ok) {
+              console.error('Failed to save single result')
+            }
+          } catch (error) {
+            console.error('Error saving single result:', error)
+          }
+        } else {
+          // 多张图片，使用批量完成API
+          try {
+            // 先保存每个结果到数据库（不发送邮件）
+            for (const result of successfulResults) {
+              try {
+                await fetch('/api/generate-pet-art/complete', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    artwork_id: result.artwork_id,
+                    generated_image_url: result.url,
+                    generation_time: result.generationTime,
+                    prompt: result.prompt,
+                    custom_requirements: result.customRequirements,
+                    skip_email: true // 添加标记跳过单个邮件
+                  })
+                })
+              } catch (error) {
+                console.error('Error saving individual result:', error)
+              }
+            }
+            
+            // 然后发送统一的批量完成邮件
+            const batchCompleteResponse = await fetch('/api/generate-pet-art/batch-complete', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                artworks: successfulResults.map(r => ({
+                  artwork_id: r.artwork_id,
+                  url: r.url,
+                  templateName: r.templateName
+                })),
+                totalGenerationTime
+              })
+            })
+            
+            if (!batchCompleteResponse.ok) {
+              console.error('Failed to send batch completion notification')
+            }
+          } catch (error) {
+            console.error('Error processing batch completion:', error)
+          }
+        }
       }
       
-      const aiResponse = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${API_KEY}`
-        },
-        body: aiFormData,
-        // 设置较长的超时时间（客户端超时）
-        signal: AbortSignal.timeout(300000) // 5分钟
-      })
-
-      if (!aiResponse.ok) {
-        const errorText = await aiResponse.text()
-        console.error(`AI API error: ${errorText}`)
-        throw new Error('Failed to generate image')
+      // 如果有部分失败，显示警告
+      if (successfulResults.length < selectedTemplates.length) {
+        toast.warning(`Generated ${successfulResults.length} of ${selectedTemplates.length} images. Some templates failed.`)
+      } else {
+        // 全部成功
+        toast.success(`Successfully generated all ${successfulResults.length} images!`)
       }
-
-      const aiData = await aiResponse.json()
-      
-      if (!aiData.data || aiData.data.length === 0) {
-        throw new Error('No image generated')
-      }
-
-      const generatedImageUrl = aiData.data[0].url
-      const generationTime = Date.now() - generationStartTime
-
-      // Step 3: 保存生成结果到后端
-      const completeResponse = await fetch('/api/generate-pet-art/complete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          artwork_id,
-          generated_image_url: generatedImageUrl,
-          generation_time: generationTime,
-          prompt: prompt,
-          custom_requirements: fullCustomPrompt,
-        })
-      })
-
-      const completeResult = await completeResponse.json()
-
-      if (!completeResponse.ok || !completeResult.success) {
-        // 即使保存失败，也显示生成的图片
-        console.error('Failed to save result:', completeResult.message)
-      }
-
-      setGeneratedImage(generatedImageUrl)
       
       // Complete progress
       setGenerationProgress(100)
-      setGenerationMessage('Generation complete!')
+      setGenerationMessage(`Generated ${successfulResults.length} image${successfulResults.length > 1 ? 's' : ''}!`)
       
       // 刷新积分显示
       await fetchUserCredits()
-      
-      // 显示成功提示
-      const elapsed = Math.round(generationTime / 1000)
-      console.log(`Generation completed in ${elapsed} seconds`)
       
       // 清理定时器
       clearInterval(progressInterval)
@@ -398,13 +511,21 @@ export default function PetArtGenerator() {
     }
   }
 
-  const handleDownload = async () => {
-    if (generatedImage) {
+  const handleDownload = async (imageUrl: string, index: number) => {
+    if (imageUrl) {
       try {
-        await downloadImage(generatedImage, `pet-art-${Date.now()}.png`)
+        await downloadImage(imageUrl, `pet-art-${index + 1}-${Date.now()}.png`)
       } catch (error) {
         alert("Download failed. Please try again")
       }
+    }
+  }
+  
+  const handleDownloadAll = async () => {
+    for (let i = 0; i < generatedImages.length; i++) {
+      await handleDownload(generatedImages[i], i)
+      // 添加小延迟避免同时下载太多文件
+      await new Promise(resolve => setTimeout(resolve, 500))
     }
   }
 
@@ -463,11 +584,27 @@ export default function PetArtGenerator() {
                         <div 
                           key={`${template.category}-${index}`} 
                           className={`relative cursor-pointer transition-all duration-300 group ${
-                            selectedTemplate?.image === template.image 
+                            selectedTemplates.some(t => t.image === template.image)
                               ? 'ring-2 ring-primary' 
                               : 'hover:ring-1 hover:ring-primary/50'
                           }`}
-                          onClick={() => setSelectedTemplate(template)}
+                          onClick={() => {
+                            const isSelected = selectedTemplates.some(t => t.image === template.image)
+                            if (isSelected) {
+                              setSelectedTemplates(selectedTemplates.filter(t => t.image !== template.image))
+                              // 如果取消选择的是最后选择的模版，清空最后选择
+                              if (lastSelectedTemplate?.image === template.image) {
+                                // 选择剩余模版中的最后一个作为预览
+                                const remaining = selectedTemplates.filter(t => t.image !== template.image)
+                                setLastSelectedTemplate(remaining.length > 0 ? remaining[remaining.length - 1] : null)
+                              }
+                            } else if (selectedTemplates.length < 8) {
+                              setSelectedTemplates([...selectedTemplates, template])
+                              setLastSelectedTemplate(template) // 更新最后选择的模版
+                            } else {
+                              toast.warning("You can select up to 8 templates at once")
+                            }
+                          }}
                         >
                           <div className="relative aspect-[3/4] rounded-lg overflow-hidden">
                             <Image
@@ -485,13 +622,20 @@ export default function PetArtGenerator() {
                                 {template.tag}
                               </Badge>
                             )}
-                            {selectedTemplate?.image === template.image && (
-                              <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                                <div className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center">
-                                  ✓
-                                </div>
+                            {/* 圆形选择按钮 */}
+                            <div className="absolute bottom-2 right-2">
+                              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                                selectedTemplates.some(t => t.image === template.image)
+                                  ? 'bg-primary border-primary'
+                                  : 'bg-white/80 border-gray-400 hover:border-primary'
+                              }`}>
+                                {selectedTemplates.some(t => t.image === template.image) && (
+                                  <span className="text-white text-xs font-bold">
+                                    {selectedTemplates.findIndex(t => t.image === template.image) + 1}
+                                  </span>
+                                )}
                               </div>
-                            )}
+                            </div>
                           </div>
                           <p className="text-xs text-center mt-1 truncate">{template.name}</p>
                         </div>
@@ -666,7 +810,7 @@ export default function PetArtGenerator() {
                 ) : (
                   <>
                     <span className="mr-2">✨</span>
-                    Generate Art Photo (1 credit)
+                    Generate {selectedTemplates.length > 0 ? `${selectedTemplates.length} Art Photo${selectedTemplates.length > 1 ? 's' : ''}` : 'Art Photo'} ({selectedTemplates.length || 1} credit{selectedTemplates.length > 1 ? 's' : ''})
                   </>
                 )}
               </Button>
@@ -731,7 +875,7 @@ export default function PetArtGenerator() {
             <CardContent>
               <div className="relative border-2 border-dashed border-border rounded-lg p-6 min-h-[400px] flex items-center justify-center bg-muted/20">
                 {/* 生成中的动画效果 */}
-                {isGenerating && !generatedImage && (
+                {isGenerating && generatedImages.length === 0 && (
                   <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg z-20">
                     <div className="text-center">
                       {/* 主动画 */}
@@ -767,55 +911,154 @@ export default function PetArtGenerator() {
                   </div>
                 )}
                 
-                {generatedImage ? (
-                  <div className="relative">
-                    <Image
-                      src={generatedImage}
-                      alt="Generated art"
-                      width={400}
-                      height={400}
-                      className="object-contain rounded-lg"
-                      unoptimized
-                    />
-                  </div>
-                ) : selectedTemplate && !petImage ? (
-                  <div className="relative">
-                    <Image
-                      src={getPreviewImagePath(selectedTemplate.image)}
-                      alt={`${selectedTemplate.name} preview`}
-                      width={400}
-                      height={400}
-                      className="object-contain rounded-lg"
-                      priority
-                      unoptimized
-                      onError={(e) => {
-                        // 如果预览图不存在，显示默认内容
-                        const target = e.target as HTMLImageElement
-                        target.style.display = 'none'
-                        target.parentElement!.innerHTML = `
-                          <div class="text-center text-muted-foreground">
-                            <div class="text-6xl mb-4">✨</div>
-                            <p class="text-lg">Template selected: ${selectedTemplate.name}</p>
-                            <p class="text-sm mt-2">Preview will be available soon</p>
+                {generatedImages.length > 0 ? (
+                  <div className="w-full">
+                    {/* 单张图片或多张图片的不同展示 */}
+                    {generatedImages.length === 1 ? (
+                      // 单张图片展示
+                      <div className="relative">
+                        <Image
+                          src={generatedImages[0]}
+                          alt="Generated art"
+                          width={400}
+                          height={400}
+                          className="object-contain rounded-lg"
+                          unoptimized
+                        />
+                      </div>
+                    ) : (
+                      // 多张图片网格展示
+                      <div className="grid grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+                        {generatedImages.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <Image
+                              src={image}
+                              alt={`Generated art ${index + 1}`}
+                              width={200}
+                              height={200}
+                              className="object-contain rounded-lg w-full h-auto"
+                              unoptimized
+                            />
+                            <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                onClick={() => handleDownload(image, index)}
+                                size="sm"
+                                variant="secondary"
+                                className="bg-white/90 hover:bg-white"
+                              >
+                                <span className="text-xs">💾 #{index + 1}</span>
+                              </Button>
+                            </div>
                           </div>
-                        `
-                      }}
-                    />
-                    <button
-                      onClick={() => setSelectedTemplate(null)}
-                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-destructive/90 transition-colors z-10"
-                    >
-                      ✕
-                    </button>
-                    <div className="absolute bottom-2 left-2 right-2">
-                      <Badge variant="secondary" className="w-full justify-center">
-                        Preview: {(() => {
-                          const dashIndex = selectedTemplate.name.indexOf(' — ')
-                          return dashIndex > -1 ? selectedTemplate.name.substring(0, dashIndex) : selectedTemplate.name
-                        })()}
-                      </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : petImage && selectedTemplates.length > 0 ? (
+                  // 如果已上传宠物照片且选择了模板，只显示选择信息
+                  <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+                    <div className="space-y-6">
+                      {/* 圆形进度指示器 */}
+                      <div className="mx-auto w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-3xl font-bold text-primary">{selectedTemplates.length}</span>
+                      </div>
+                      
+                      {/* 状态文本 */}
+                      <div className="text-center space-y-2">
+                        <p className="text-xl font-semibold text-foreground">
+                          Template{selectedTemplates.length > 1 ? 's' : ''} Selected
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Pet Photo Uploaded
+                        </p>
+                      </div>
+                      
+                      {/* 准备状态提示 */}
+                      <div className="flex items-center justify-center gap-2 text-sm text-green-600 dark:text-green-400">
+                        <div className="w-2 h-2 rounded-full bg-green-600 dark:bg-green-400 animate-pulse"></div>
+                        <span>Ready to generate your artwork</span>
+                      </div>
                     </div>
                   </div>
+                ) : petImage && selectedTemplates.length === 0 ? (
+                  // 如果已上传宠物照片但没有选择模板
+                  <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+                    <div className="space-y-4">
+                      <div className="mx-auto w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center">
+                        <span className="text-3xl">📸</span>
+                      </div>
+                      <div className="text-center space-y-2">
+                        <p className="text-lg font-semibold text-foreground">Pet Photo Uploaded</p>
+                        <p className="text-sm text-muted-foreground">Please select at least one template to continue</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : !petImage && lastSelectedTemplate ? (
+                  // 只显示最后选择的模板预览（没有上传宠物照片时）
+                  (() => {
+                    const previewImagePath = getPreviewImagePath(lastSelectedTemplate.image)
+                    // 检查预览路径是否有效
+                    if (!previewImagePath || previewImagePath === '') {
+                      // 如果预览路径无效，显示占位内容
+                      return (
+                        <div className="relative">
+                          <div className="w-[400px] h-[400px] bg-muted/30 rounded-lg flex items-center justify-center">
+                            <div className="text-center text-muted-foreground">
+                              <div className="text-6xl mb-4">✨</div>
+                              <p className="text-lg">Template selected: {lastSelectedTemplate.name.split(' — ')[0]}</p>
+                              <p className="text-sm mt-2">Preview will be available soon</p>
+                            </div>
+                          </div>
+                          <div className="absolute top-2 left-2">
+                            <Badge variant="default" className="bg-primary/90">
+                              {selectedTemplates.length} template{selectedTemplates.length > 1 ? 's' : ''} selected
+                            </Badge>
+                          </div>
+                          <div className="absolute bottom-2 left-2 right-2">
+                            <Badge variant="secondary" className="w-full justify-center">
+                              Preview: {lastSelectedTemplate.name.split(' — ')[0]}
+                            </Badge>
+                          </div>
+                        </div>
+                      )
+                    }
+                    
+                    // 如果预览路径有效，显示预览图片
+                    return (
+                      <div className="relative">
+                        <Image
+                          src={previewImagePath}
+                          alt={`${lastSelectedTemplate.name} preview`}
+                          width={400}
+                          height={400}
+                          className="object-contain rounded-lg"
+                          priority
+                          unoptimized
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.style.display = 'none'
+                            target.parentElement!.innerHTML = `
+                              <div class="text-center text-muted-foreground">
+                                <div class="text-6xl mb-4">✨</div>
+                                <p class="text-lg">Template selected: ${lastSelectedTemplate.name}</p>
+                                <p class="text-sm mt-2">Preview will be available soon</p>
+                              </div>
+                            `
+                          }}
+                        />
+                        <div className="absolute top-2 left-2">
+                          <Badge variant="default" className="bg-primary/90">
+                            {selectedTemplates.length} template{selectedTemplates.length > 1 ? 's' : ''} selected
+                          </Badge>
+                        </div>
+                        <div className="absolute bottom-2 left-2 right-2">
+                          <Badge variant="secondary" className="w-full justify-center">
+                            Preview: {lastSelectedTemplate.name.split(' — ')[0]}
+                          </Badge>
+                        </div>
+                      </div>
+                    )
+                  })()
                 ) : (
                   <div className="text-center text-muted-foreground">
                     <div className="text-6xl mb-4">🎨</div>
@@ -825,17 +1068,34 @@ export default function PetArtGenerator() {
                 )}
               </div>
 
-              {generatedImage && (
-                <div className="mt-6">
-                  <Button 
-                    onClick={handleDownload}
-                    variant="outline"
-                    className="w-full"
-                    size="lg"
-                  >
-                    <span className="mr-2">💾</span>
-                    Download Image
-                  </Button>
+              {generatedImages.length > 0 && (
+                <div className="mt-6 space-y-3">
+                  {generatedImages.length === 1 ? (
+                    <Button 
+                      onClick={() => handleDownload(generatedImages[0], 0)}
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                    >
+                      <span className="mr-2">💾</span>
+                      Download Image
+                    </Button>
+                  ) : (
+                    <>
+                      <Button 
+                        onClick={handleDownloadAll}
+                        variant="outline"
+                        className="w-full"
+                        size="lg"
+                      >
+                        <span className="mr-2">💾</span>
+                        Download All {generatedImages.length} Images
+                      </Button>
+                      <p className="text-xs text-center text-muted-foreground">
+                        Or hover over each image above to download individually
+                      </p>
+                    </>
+                  )}
                 </div>
               )}
             </CardContent>

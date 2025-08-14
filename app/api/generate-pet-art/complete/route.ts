@@ -23,7 +23,8 @@ export async function POST(req: NextRequest) {
       generated_image_url, 
       generation_time,
       prompt,
-      custom_requirements 
+      custom_requirements,
+      skip_email = false // 添加跳过邮件标记，默认false
     } = body;
 
     if (!artwork_id || !generated_image_url) {
@@ -70,8 +71,8 @@ export async function POST(req: NextRequest) {
     // 获取作品信息用于邮件
     const artwork = await findArtworkById(artwork_id);
     
-    // 发送完成通知邮件（异步，不阻塞响应）
-    if (session.user.email && artwork) {
+    // 发送完成通知邮件（异步，不阻塞响应）- 如果skip_email为true则跳过
+    if (!skip_email && session.user.email && artwork) {
       console.log('📧 准备发送生图完成通知邮件...');
       console.log('用户邮箱:', session.user.email);
       console.log('用户名称:', session.user.name);
@@ -109,6 +110,8 @@ export async function POST(req: NextRequest) {
         .catch((error) => {
           console.error('❌ 发送生图完成邮件时出错:', error);
         });
+    } else if (skip_email) {
+      console.log('⚠️ skip_email标记为true，跳过单个邮件发送（批量处理中）');
     } else {
       console.log('⚠️ 用户没有邮箱或作品信息，跳过邮件发送');
     }

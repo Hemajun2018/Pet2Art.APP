@@ -133,3 +133,86 @@ export function generateArtworkCompleteEmailHTML(data: {
 </html>
   `.trim();
 }
+
+/**
+ * 生成批量生图完成通知邮件的HTML内容
+ */
+export function generateBatchArtworkCompleteEmailHTML(data: {
+  userName: string;
+  artworks: Array<{
+    url: string;
+    templateName: string;
+  }>;
+  totalGenerationTime: number;
+  webUrl: string;
+}) {
+  const { userName, artworks, totalGenerationTime, webUrl } = data;
+  const timeInMinutes = Math.round(totalGenerationTime / 1000 / 60 * 10) / 10;
+
+  // 生成图片网格HTML
+  const imagesGridHTML = artworks.map((artwork, index) => `
+    <div style="display: inline-block; width: 48%; margin: 1%; vertical-align: top;">
+      <img src="${artwork.url}" alt="${artwork.templateName}" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+      <p style="text-align: center; margin: 10px 0 0 0; font-size: 14px; color: #666;">${index + 1}. ${artwork.templateName}</p>
+    </div>
+  `).join('');
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Pet Artworks are Ready!</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+    <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Your ${artworks.length} Pet Artworks are Complete!</h1>
+  </div>
+  
+  <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+    <p style="font-size: 18px; margin-bottom: 20px;">Dear ${userName},</p>
+    
+    <p style="font-size: 16px; margin-bottom: 20px;">
+      Great news! Your <strong>${artworks.length} pet artworks</strong> have been successfully generated!
+      Total generation time: <strong>${timeInMinutes} minutes</strong>.
+    </p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <h3 style="color: #667eea; margin-bottom: 20px;">Your Generated Artworks:</h3>
+      <div style="text-align: center;">
+        ${imagesGridHTML}
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin: 40px 0;">
+      <a href="${webUrl}/my-artworks" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
+        View & Download All Artworks
+      </a>
+    </div>
+    
+    <div style="background: #e8f4fd; padding: 20px; border-radius: 10px; margin: 20px 0;">
+      <h3 style="color: #1e40af; margin-top: 0;">💡 Tips:</h3>
+      <ul style="color: #1e40af; margin: 10px 0;">
+        <li>All images are available in high resolution for download</li>
+        <li>Share your favorite artwork on social media</li>
+        <li>Create a collage with all your pet's different styles</li>
+        <li>Each artwork can be used as profile picture or wallpaper</li>
+        <li>If you're satisfied, please leave us a review!</li>
+      </ul>
+    </div>
+    
+    <p style="font-size: 14px; color: #666; margin-top: 30px; text-align: center;">
+      Thank you for using Pet2Art! If you have any questions, feel free to contact us.<br>
+      <a href="${webUrl}" style="color: #667eea; text-decoration: none;">${webUrl}</a>
+    </p>
+  </div>
+  
+  <div style="text-align: center; padding: 20px; font-size: 12px; color: #999;">
+    <p>This is an automated email, please do not reply.</p>
+    <p>© 2024 Pet2Art. All rights reserved.</p>
+  </div>
+</body>
+</html>
+  `.trim();
+}
