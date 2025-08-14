@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     });
 
     // 获取作品信息用于邮件
-    const artwork = await findArtworkById(artwork_id, user_uuid);
+    const artwork = await findArtworkById(artwork_id);
     
     // 发送完成通知邮件（异步，不阻塞响应）
     if (session.user.email && artwork) {
