@@ -24,9 +24,9 @@ export const getPreviewImagePath = (templateImagePath: string): string => {
   const nameWithoutExt = filename.substring(0, lastDotIndex)
   const extension = filename.substring(lastDotIndex)
   
-  // 提取破折号前的风格意象部分（如果有破折号）
-  const dashIndex = nameWithoutExt.indexOf(' — ')
-  const previewName = dashIndex > -1 ? nameWithoutExt.substring(0, dashIndex) : nameWithoutExt
+  // 提取下划线前的风格意象部分（如果有下划线）
+  const underscoreIndex = nameWithoutExt.indexOf('_')
+  const previewName = underscoreIndex > -1 ? nameWithoutExt.substring(0, underscoreIndex) : nameWithoutExt
   
   // 构建预览图路径
   const previewPath = path.replace('/templates/', '/previews/')
