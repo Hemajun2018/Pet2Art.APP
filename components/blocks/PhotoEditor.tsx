@@ -1004,7 +1004,7 @@ export default function PetArtGenerator() {
                           <div className="w-[400px] h-[400px] bg-muted/30 rounded-lg flex items-center justify-center">
                             <div className="text-center text-muted-foreground">
                               <div className="text-6xl mb-4">✨</div>
-                              <p className="text-lg">Template selected: {lastSelectedTemplate.name.split(' — ')[0]}</p>
+                              <p className="text-lg">Template selected: {lastSelectedTemplate.name.split(' - ')[0]}</p>
                               <p className="text-sm mt-2">Preview will be available soon</p>
                             </div>
                           </div>
@@ -1015,7 +1015,7 @@ export default function PetArtGenerator() {
                           </div>
                           <div className="absolute bottom-2 left-2 right-2">
                             <Badge variant="secondary" className="w-full justify-center">
-                              Preview: {lastSelectedTemplate.name.split(' — ')[0]}
+                              Preview: {lastSelectedTemplate.name.split(' - ')[0]}
                             </Badge>
                           </div>
                         </div>
