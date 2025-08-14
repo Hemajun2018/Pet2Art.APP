@@ -1,6 +1,13 @@
 import { SnowflakeIdv1 } from "simple-flakeid";
 import { v4 as uuidv4 } from "uuid";
 
+// 创建单例雪花算法生成器
+// 使用单例模式避免并发时生成重复ID
+// workerId 可以根据实际部署环境设置（例如从环境变量读取）
+const snowflakeGenerator = new SnowflakeIdv1({ 
+  workerId: process.env.WORKER_ID ? parseInt(process.env.WORKER_ID) : 1 
+});
+
 export function getUuid(): string {
   return uuidv4();
 }
@@ -27,8 +34,7 @@ export function getNonceStr(length: number): string {
 }
 
 export function getSnowId(): string {
-  const gen = new SnowflakeIdv1({ workerId: 1 });
-  const snowId = gen.NextId();
-
+  // 使用单例生成器，保证在同一时间戳内序列号会自动递增
+  const snowId = snowflakeGenerator.NextId();
   return snowId.toString();
 }
