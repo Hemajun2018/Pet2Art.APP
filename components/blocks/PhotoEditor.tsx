@@ -653,7 +653,8 @@ export default function PetArtGenerator() {
                 </div>
               </div>
 
-              <div>
+              {/* Custom Requirements section hidden for now */}
+              {/* <div>
                 <label className="block font-semibold mb-2">Custom Requirements (Optional)</label>
                 <textarea
                   value={customPrompt}
@@ -661,7 +662,7 @@ export default function PetArtGenerator() {
                   placeholder="E.g., Add a Christmas hat, change background to snow scene..."
                   className="w-full h-20 px-3 py-2 border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                 />
-              </div>
+              </div> */}
 
               <Button 
                 onClick={() => {
