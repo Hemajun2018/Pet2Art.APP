@@ -53,7 +53,7 @@
     "description": "Create professional artistic portraits of your beloved pets with AI technology.<br/>From classic paintings to modern art styles - make your pet a masterpiece.",
     "announcement": {
       "label": "NEW",
-      "title": "🎨 50+ Art Styles Available",
+      "title": "🎨 Multiple Art Styles Available",
       "url": "/#generate-section"
     },
     "tip": "🎁 Start with 3 free credits - No credit card required",
@@ -97,12 +97,12 @@
       },
       {
         "title": "Choose Art Style",
-        "description": "Select from 50+ professional art styles - from Renaissance paintings to modern pop art.",
+        "description": "Select from numerous professional art styles - from Renaissance paintings to modern pop art.",
         "icon": "RiPaletteLine"
       },
       {
         "title": "Generate & Download",
-        "description": "AI creates your unique pet portrait in seconds. Download in high resolution for printing.",
+        "description": "Simply select a template and click generate. No waiting required - your pet art will be sent directly to your email.",
         "icon": "RiDownloadLine"
       }
     ]
@@ -145,7 +145,7 @@
     "description": "Professional pet portraits made easy with cutting-edge AI technology.",
     "items": [
       {
-        "title": "50+ Art Styles",
+        "title": "Multiple Art Styles",
         "description": "From classical paintings to modern digital art - find the perfect style for your pet.",
         "icon": "RiPaletteLine"
       },
@@ -185,7 +185,7 @@
     "items": [
       {
         "title": "Art Styles",
-        "label": "50+",
+        "label": "Multiple",
         "description": "Available Styles"
       },
       {
@@ -225,7 +225,7 @@
       },
       {
         "title": "How long does it take to generate pet art?",
-        "description": "Our AI creates your pet portrait in just 10-30 seconds! Once generated, you can immediately download the high-resolution image for printing or sharing."
+        "description": "Our AI creates your pet portrait in about 2-3 minutes. Once generated, the high-resolution image will be automatically sent to your email address, no waiting required."
       },
       {
         "title": "Can I use the generated art for commercial purposes?",
@@ -237,11 +237,11 @@
       },
       {
         "title": "Do you offer refunds if I'm not satisfied?",
-        "description": "Yes! We offer a 30-day money-back guarantee. If you're not satisfied within 30 days of purchase, contact petart_studio@outlook.com for a full refund. We process refund requests within 3-5 business days."
+        "description": "If you have refund requirements, please send a refund request to petart_studio@outlook.com. We will process your request within 3 business days."
       },
       {
         "title": "How do I cancel my subscription?",
-        "description": "You can cancel your subscription anytime by contacting petart_studio@outlook.com or through the Creem Customer Portal. Cancellations are processed within 3 business days. You'll continue to have access until the end of your billing period."
+        "description": "You can cancel your subscription anytime by going to your account and clicking 'Cancel Subscription' in the 'My Orders' section. You'll continue to have access until the end of your billing period."
       },
       {
         "title": "What AI technology do you use?",

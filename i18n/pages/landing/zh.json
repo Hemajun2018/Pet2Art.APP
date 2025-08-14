@@ -118,27 +118,27 @@
   },
   "introduce": {
     "name": "introduce",
-    "title": "什么是 ShipAny",
-    "label": "介绍",
-    "description": "ShipAny 是一个用于构建 AI SaaS 创业项目的 NextJS 模板，内置多种模板和组件。",
+    "title": "如何使用 Pet2Art",
+    "label": "使用方法",
+    "description": "只需 3 个简单步骤即可为您的宠物创建专业艺术肖像。无需任何艺术技能！",
     "image": {
-      "src": "/imgs/features/1.png"
+      "src": "/howtouse/Smart Scholar — Corgi.jpg"
     },
     "items": [
       {
-        "title": "即用型模板",
-        "description": "从数十个生产就绪的 AI SaaS 模板中选择，快速启动您的项目。",
-        "icon": "RiNextjsFill"
+        "title": "上传宠物照片",
+        "description": "只需上传一张清晰的宠物照片。适用于狗、猫、鸟和任何心爱的动物。",
+        "icon": "RiImageAddLine"
       },
       {
-        "title": "基础设施配置",
-        "description": "立即获取内置最佳实践的可扩展基础设施。",
-        "icon": "RiDatabase2Line"
+        "title": "选择艺术风格",
+        "description": "从众多专业艺术风格中选择 - 从文艺复兴绘画到现代波普艺术。",
+        "icon": "RiPaletteLine"
       },
       {
-        "title": "快速部署",
-        "description": "在几小时内将您的 AI SaaS 应用部署到生产环境，而不是几天。",
-        "icon": "RiCloudyFill"
+        "title": "生成并下载",
+        "description": "只需选择模板并点击生成。无需等待 - 您的宠物艺术照会直接发送到您的邮箱。",
+        "icon": "RiDownloadLine"
       }
     ]
   },
@@ -295,32 +295,40 @@
   "faq": {
     "name": "faq",
     "label": "常见问题",
-    "title": "关于 ShipAny 的常见问题",
-    "description": "还有其他问题？通过 Discord 或电子邮件联系我们。",
+    "title": "常见问题解答",
+    "description": "关于使用 Pet2Art 创建宠物艺术的所有信息。",
     "items": [
       {
-        "title": "ShipAny 究竟是什么，它是如何工作的？",
-        "description": "ShipAny 是一个专门为构建 AI SaaS 创业项目设计的综合性 NextJS 模板。它提供即用型模板、基础设施设置和部署工具，帮助您在几小时内而不是几天内启动 AI 业务。"
+        "title": "我可以为哪些类型的宠物创作艺术？",
+        "description": "Pet2Art 适用于所有类型的宠物 - 狗、猫、鸟、兔子、仓鼠、马等等！只要您有一张清晰的宠物照片，我们就能将其转化为美丽的艺术作品。"
       },
       {
-        "title": "使用 ShipAny 需要高级技术技能吗？",
-        "description": "虽然基本的编程知识会有帮助，但 ShipAny 设计得非常开发者友好。我们的模板和文档使您即使不是 AI 或云基础设施专家也能轻松入门。"
+        "title": "需要什么质量的照片才能获得最佳效果？",
+        "description": "为获得最佳效果，请使用清晰、光线充足的照片，确保宠物的脸部清晰可见。照片至少应为 500x500 像素。避免使用模糊或光线不足的照片以获得最佳艺术生成效果。"
       },
       {
-        "title": "我可以用 ShipAny 构建什么类型的 AI SaaS？",
-        "description": "ShipAny 支持广泛的 AI 应用，从内容生成到数据分析工具。我们的模板涵盖流行用例，如 AI 聊天机器人、内容生成器、图像处理应用等。"
+        "title": "生成宠物艺术需要多长时间？",
+        "description": "我们的 AI 在 2-3 分钟左右创建您的宠物肖像。生成完成后，高分辨率图片会自动发送到您的邮箱，无需任何等待。"
       },
       {
-        "title": "使用 ShipAny 通常需要多长时间才能启动？",
-        "description": "使用 ShipAny，您可以在几小时内完成工作原型，并在几小时内完成生产就绪的应用。我们的一键部署和预配置基础设施显著缩短了传统的数月开发周期。"
+        "title": "我可以将生成的艺术作品用于商业用途吗？",
+        "description": "是的！一旦您使用 Pet2Art 生成艺术作品，您就拥有完全的使用权 - 个人使用、礼物、商品或商业用途。"
       },
       {
-        "title": "ShipAny 的基础设施包括什么？",
-        "description": "ShipAny 提供完整的基础设施栈，包括身份验证、数据库设置、API 集成、支付处理和可扩展的云部署。一切都按照行业最佳实践预先配置。"
+        "title": "生成的图像分辨率是多少？",
+        "description": "所有生成的宠物肖像都是适合打印的高分辨率图像。确切的分辨率取决于您选择的宽高比，但所有图像都针对数字显示和实体打印进行了优化。"
       },
       {
-        "title": "我可以自定义模板以匹配我的品牌吗？",
-        "description": "当然可以！所有 ShipAny 模板都完全可定制。您可以修改设计、功能和功能性以匹配您的品牌标识和特定业务需求，同时保持强大的底层基础设施。"
+        "title": "如果我不满意，你们提供退款吗？",
+        "description": "如果您有退款需求，请发送退款请求到 petart_studio@outlook.com 申请。我们将在 3 个工作日内处理您的请求。"
+      },
+      {
+        "title": "如何取消订阅？",
+        "description": "您可以随时在账户里点击 My Orders 中的 Cancel Subscription 取消订阅。您将继续拥有访问权限直到计费周期结束。"
+      },
+      {
+        "title": "你们使用什么 AI 技术？",
+        "description": "我们是一个 AI 包装服务，提供基于 GPT-4 Vision 等先进模型构建的用户友好界面。我们是一个独立平台，与 OpenAI 或其他 AI 提供商无关。请参阅我们的 AI 披露页面了解完整详情。"
       }
     ]
   },

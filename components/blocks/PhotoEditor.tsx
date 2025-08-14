@@ -662,8 +662,6 @@ export default function PetArtGenerator() {
                 <p className="font-medium">Important Notes:</p>
                 <p className="text-muted-foreground">• Only pet photos supported (no humans)</p>
                 <p className="text-muted-foreground">• Best results with clear, well-lit photos</p>
-                <p className="text-muted-foreground">• Processing takes 10-30 seconds</p>
-                <p className="text-muted-foreground">• Results may vary based on photo quality</p>
               </div>
               <div>
                 <label className="block font-semibold mb-2">Pet Photo</label>
