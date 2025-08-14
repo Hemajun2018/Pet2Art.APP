@@ -5,7 +5,7 @@
   "author": "Pet2Art Team",
   "homepage": "https://pet2art.app",
   "scripts": {
-    "dev": "cross-env NODE_NO_WARNINGS=1 next dev --turbopack",
+    "dev": "cross-env NODE_NO_WARNINGS=1 next dev",
     "build": "next build",
     "start": "NODE_NO_WARNINGS=1 next start",
     "lint": "next lint",

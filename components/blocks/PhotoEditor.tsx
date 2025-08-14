@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import Image from "next/image"
 import { getPreviewImagePath, type PetTemplate, type TemplateCategory } from "@/lib/petTemplates"
 import { downloadImage } from "@/lib/petAiApi"
@@ -12,6 +13,7 @@ import { useAppContext } from "@/contexts/app"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { validateImageFile, checkProhibitedContent, sanitizeInput } from "@/lib/contentFilter"
+import { toast } from "sonner"
 
 export default function PetArtGenerator() {
   const router = useRouter()
@@ -34,6 +36,7 @@ export default function PetArtGenerator() {
   const [templateCategories, setTemplateCategories] = useState<TemplateCategory[]>([])
   const [templates, setTemplates] = useState<Record<string, PetTemplate[]>>({})
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true)
+  const [showTipDialog, setShowTipDialog] = useState(false)
 
   // 获取用户积分
   useEffect(() => {
@@ -137,6 +140,7 @@ export default function PetArtGenerator() {
     event.preventDefault()
   }
 
+
   const handleGenerate = async () => {
     if (!petImage || !selectedTemplate) {
       alert("Please upload a pet photo and select a template")
@@ -193,6 +197,19 @@ export default function PetArtGenerator() {
         return
       }
     }
+
+    // Show notification about generation time and email
+    toast.info(
+      <div>
+        <p className="font-semibold">Generation Started!</p>
+        <p className="text-sm mt-1">This process takes 2-3 minutes. Please don't close the page.</p>
+        <p className="text-sm mt-1">Your artwork will be sent to your registered email when complete.</p>
+      </div>,
+      {
+        duration: 8000,
+        position: "top-center",
+      }
+    )
 
     setIsGenerating(true)
     try {
@@ -628,8 +645,16 @@ export default function PetArtGenerator() {
               </div>
 
               <Button 
-                onClick={handleGenerate}
-                disabled={!petImage || !selectedTemplate || isGenerating}
+                onClick={() => {
+                  // 如果没有宠物照片但有参考图片，显示提示
+                  if (!petImage && showReferenceImage) {
+                    setShowTipDialog(true)
+                    return
+                  }
+                  // 否则直接生成
+                  handleGenerate()
+                }}
+                disabled={(!petImage && !showReferenceImage) || isGenerating}
                 className="w-full bg-primary hover:bg-primary/90"
                 size="lg"
               >
@@ -816,6 +841,57 @@ export default function PetArtGenerator() {
             </CardContent>
           </Card>
         </div>
+
+        {/* 美观的提示弹窗 */}
+        <Dialog open={showTipDialog} onOpenChange={setShowTipDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <span className="text-2xl">💡</span>
+                Ready to Generate?
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="text-center">
+                <div className="text-6xl mb-4">🎨</div>
+                <p className="text-muted-foreground text-base leading-relaxed">
+                  To create your pet art, please:
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-semibold text-sm">1</span>
+                  </div>
+                  <div>
+                    <p className="font-medium">Select a Template</p>
+                    <p className="text-sm text-muted-foreground">Choose an art style from the left panel</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-semibold text-sm">2</span>
+                  </div>
+                  <div>
+                    <p className="font-medium">Upload Pet Photo</p>
+                    <p className="text-sm text-muted-foreground">Add a clear photo of your pet</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-center">
+                <Button 
+                  onClick={() => setShowTipDialog(false)}
+                  className="px-8 py-2"
+                >
+                  Got it! ✨
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   )

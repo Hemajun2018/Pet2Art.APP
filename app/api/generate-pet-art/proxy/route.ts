@@ -27,14 +27,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 转发请求到 AI API
+    // 转发请求到 AI API（设置10分钟超时）
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 600000) // 10分钟超时
+    
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${API_KEY}`
       },
       body: formData,
-    })
+      signal: controller.signal
+    }).finally(() => clearTimeout(timeoutId))
 
     if (!response.ok) {
       const errorText = await response.text()
@@ -52,8 +56,17 @@ export async function POST(request: NextRequest) {
       data: data
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Generate pet art proxy error:", error)
+    
+    // 处理超时错误
+    if (error.name === 'AbortError') {
+      return NextResponse.json(
+        { success: false, message: "Request timeout. Please try again with a simpler prompt or smaller image." },
+        { status: 408 }
+      )
+    }
+    
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }

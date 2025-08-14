@@ -4,6 +4,7 @@ import { insertArtwork } from "@/models/artwork";
 import { v4 as uuidv4 } from "uuid";
 import { getIsoTimestr } from "@/lib/time";
 import { newStorage } from "@/lib/storage";
+import { sendEmail, generateArtworkCompleteEmailHTML } from "@/lib/email";
 
 interface ApiResponse {
   data: Array<{
@@ -131,9 +132,9 @@ export async function POST(req: NextRequest) {
     // 记录开始时间
     const startTime = Date.now();
 
-    // 调用AI API（设置5分钟超时，因为生成图片需要2-3分钟）
+    // 调用AI API（设置10分钟超时，因为生成图片可能需要更长时间）
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 300000); // 5分钟超时
+    const timeoutId = setTimeout(() => controller.abort(), 600000); // 10分钟超时
     
     const aiResponse = await fetch(API_URL, {
       method: 'POST',
@@ -236,6 +237,48 @@ export async function POST(req: NextRequest) {
       trans_type: CreditsTransType.Ping, // 使用 Ping 类型表示生成消耗
       credits: 1,
     });
+
+    // 发送完成通知邮件（异步，不阻塞响应）
+    if (session.user.email) {
+      console.log('📧 准备发送生图完成通知邮件...');
+      console.log('用户邮箱:', session.user.email);
+      console.log('用户名称:', session.user.name);
+      console.log('图片URL:', generatedImageUrl);
+      
+      // Extract style name from template name (remove pet breed part)
+      let styleName = templateName || 'Pet Artwork';
+      if (styleName.includes(' — ')) {
+        styleName = styleName.split(' — ')[0]; // Get only the style part before the dash
+      }
+      
+      const webUrl = process.env.NEXT_PUBLIC_WEB_URL || 'https://pet2art.app';
+      const emailData = {
+        to: session.user.email,
+        subject: '🎉 Your Pet Artwork is Ready!',
+        html: generateArtworkCompleteEmailHTML({
+          userName: session.user.name || 'User',
+          artworkUrl: generatedImageUrl,
+          templateName: styleName,
+          generationTime,
+          webUrl,
+        }),
+      };
+      
+      // 异步发送邮件，不等待结果
+      sendEmail(emailData)
+        .then((result) => {
+          if (result.success) {
+            console.log('✅ 生图完成邮件发送成功:', result.messageId);
+          } else {
+            console.error('❌ 生图完成邮件发送失败:', result.message);
+          }
+        })
+        .catch((error) => {
+          console.error('❌ 发送生图完成邮件时出错:', error);
+        });
+    } else {
+      console.log('⚠️ 用户没有邮箱，跳过邮件发送');
+    }
 
     return NextResponse.json({
       success: true,

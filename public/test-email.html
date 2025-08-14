@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试邮件发送</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .button {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: scale(1.05);
+        }
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .logs {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 测试邮件发送功能</h1>
+        
+        <p style="text-align: center; color: #666;">
+            点击下面的按钮发送测试邮件到您的注册邮箱
+        </p>
+        
+        <button id="sendButton" class="button" onclick="sendTestEmail()">
+            发送测试邮件
+        </button>
+        
+        <div id="message"></div>
+        
+        <div id="logs" class="logs" style="display: none;">
+            <div class="log-title">📋 调试日志：</div>
+            <pre id="logContent"></pre>
+        </div>
+    </div>
+
+    <script>
+        async function sendTestEmail() {
+            const button = document.getElementById('sendButton');
+            const messageDiv = document.getElementById('message');
+            const logsDiv = document.getElementById('logs');
+            const logContent = document.getElementById('logContent');
+            
+            // 禁用按钮
+            button.disabled = true;
+            button.textContent = '发送中...';
+            
+            // 清除之前的消息
+            messageDiv.innerHTML = '';
+            logsDiv.style.display = 'none';
+            logContent.textContent = '';
+            
+            try {
+                // 显示发送中的提示
+                messageDiv.innerHTML = '<div class="message info">正在发送邮件，请稍候...</div>';
+                
+                const response = await fetch('/api/test-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    messageDiv.innerHTML = `
+                        <div class="message success">
+                            ✅ ${data.message}<br>
+                            <small>邮件ID: ${data.messageId}</small><br>
+                            <small style="color: #666;">请检查您的收件箱（包括垃圾邮件文件夹）</small>
+                        </div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <div class="message error">
+                            ❌ ${data.message || '邮件发送失败'}<br>
+                            <small>请检查控制台日志获取更多信息</small>
+                        </div>
+                    `;
+                }
+                
+                // 获取并显示控制台日志
+                setTimeout(() => {
+                    logsDiv.style.display = 'block';
+                    logContent.textContent = '请打开浏览器开发者工具（F12）的 Network 标签页，\n查看 test-email 请求的响应，\n然后查看服务器控制台日志。\n\n常见问题：\n1. RESEND_API_KEY 未配置或无效\n2. EMAIL_FROM 格式不正确\n3. Resend 账户未验证域名\n4. 邮件被标记为垃圾邮件';
+                }, 1000);
+                
+            } catch (error) {
+                messageDiv.innerHTML = `
+                    <div class="message error">
+                        ❌ 请求失败：${error.message}<br>
+                        <small>请确保您已登录且服务器正在运行</small>
+                    </div>
+                `;
+                
+                logsDiv.style.display = 'block';
+                logContent.textContent = `错误详情：\n${error.stack}`;
+            } finally {
+                // 重新启用按钮
+                button.disabled = false;
+                button.textContent = '发送测试邮件';
+            }
+        }
+    </script>
+</body>
+</html>

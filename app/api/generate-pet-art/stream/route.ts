@@ -40,14 +40,18 @@ export async function POST(request: NextRequest) {
         // 发送开始消息
         await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'start', message: 'Starting generation...' })}\n\n`))
 
-        // 转发请求到 AI API
+        // 转发请求到 AI API（设置10分钟超时）
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 600000) // 10分钟超时
+        
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${API_KEY}`
           },
           body: formData,
-        })
+          signal: controller.signal
+        }).finally(() => clearTimeout(timeoutId))
 
         if (!response.ok) {
           const errorText = await response.text()
@@ -63,9 +67,15 @@ export async function POST(request: NextRequest) {
         await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'success', data: data })}\n\n`))
         await writer.close()
 
-      } catch (error) {
+      } catch (error: any) {
         console.error("AI processing error:", error)
-        await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'error', message: 'Internal server error' })}\n\n`))
+        
+        // 处理超时错误
+        if (error.name === 'AbortError') {
+          await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'error', message: 'Request timeout. Please try again with a simpler prompt or smaller image.' })}\n\n`))
+        } else {
+          await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'error', message: 'Internal server error' })}\n\n`))
+        }
         await writer.close()
       }
     }
