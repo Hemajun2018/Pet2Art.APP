@@ -144,28 +144,78 @@ export default function PetArtGenerator() {
     setGenerationMessage('Preparing to generate...')
     setStartTime(Date.now())
     
-    // Simulate progress updates
+    // Simulate progress updates - 更合理的进度模拟
+    // 预期3分钟完成，前2.5分钟到达85%，最后0.5分钟停留在85-90%
+    const expectedDuration = 180000 // 3分钟 = 180秒
+    const updateInterval = 2000 // 每2秒更新一次
+    const updates = 150000 / updateInterval // 前2.5分钟的更新次数
+    const progressPerUpdate = 85 / updates // 每次更新的进度
+    
     const progressInterval = setInterval(() => {
       setGenerationProgress(prev => {
-        if (prev >= 90) return prev // Stop at 90% until actual completion
-        return Math.min(prev + Math.random() * 8 + 2, 90)
+        // 根据已经过去的时间计算应该达到的进度
+        const elapsedTime = Date.now() - startTime
+        
+        if (elapsedTime < 60000) {
+          // 第一分钟：缓慢增长到30%
+          const targetProgress = (elapsedTime / 60000) * 30
+          return Math.min(targetProgress, 30)
+        } else if (elapsedTime < 120000) {
+          // 第二分钟：从30%增长到60%
+          const minuteProgress = ((elapsedTime - 60000) / 60000) * 30
+          return Math.min(30 + minuteProgress, 60)
+        } else if (elapsedTime < 150000) {
+          // 第2.5分钟：从60%增长到85%
+          const halfMinuteProgress = ((elapsedTime - 120000) / 30000) * 25
+          return Math.min(60 + halfMinuteProgress, 85)
+        } else if (elapsedTime < 180000) {
+          // 2.5-3分钟：从85%增长到90%
+          const lastHalfMinuteProgress = ((elapsedTime - 150000) / 30000) * 5
+          return Math.min(85 + lastHalfMinuteProgress, 90)
+        } else if (elapsedTime < 240000) {
+          // 3-4分钟：从90%缓慢增长到94%
+          const extraMinuteProgress = ((elapsedTime - 180000) / 60000) * 4
+          return Math.min(90 + extraMinuteProgress, 94)
+        } else if (elapsedTime < 300000) {
+          // 4-5分钟：从94%缓慢增长到97%
+          const extraProgress = ((elapsedTime - 240000) / 60000) * 3
+          return Math.min(94 + extraProgress, 97)
+        } else {
+          // 5分钟后：停留在97-99%之间，偶尔微小增长
+          if (prev >= 99) return 99
+          // 每次有20%的概率增加0.1%
+          if (Math.random() < 0.2) {
+            return Math.min(prev + 0.1, 99)
+          }
+          return prev
+        }
       })
-    }, 3000)
+    }, updateInterval)
     
-    // Update status messages
-    const messages = [
-      'Analyzing your pet photo...',
-      'Identifying pet features...',
-      'Applying artistic style...',
-      'Enhancing details...',
-      'AI is creating your masterpiece...',
-      'Almost done, please wait...'
-    ]
-    let messageIndex = 0
+    // Update status messages - 根据进度更新消息
     const messageInterval = setInterval(() => {
-      messageIndex = (messageIndex + 1) % messages.length
-      setGenerationMessage(messages[messageIndex])
-    }, 8000)
+      const elapsedTime = Date.now() - startTime
+      
+      if (elapsedTime < 20000) {
+        setGenerationMessage('Analyzing your pet photo...')
+      } else if (elapsedTime < 40000) {
+        setGenerationMessage('Identifying pet features...')
+      } else if (elapsedTime < 70000) {
+        setGenerationMessage('Applying artistic style...')
+      } else if (elapsedTime < 100000) {
+        setGenerationMessage('Enhancing details...')
+      } else if (elapsedTime < 140000) {
+        setGenerationMessage('AI is creating your masterpiece...')
+      } else if (elapsedTime < 180000) {
+        setGenerationMessage('Almost done, please wait...')
+      } else if (elapsedTime < 240000) {
+        setGenerationMessage('Finalizing your artwork, thank you for your patience...')
+      } else if (elapsedTime < 300000) {
+        setGenerationMessage('Taking a bit longer, but it will be worth it...')
+      } else {
+        setGenerationMessage('Processing complex details, please hold on...')
+      }
+    }, 5000)
 
     // 检查用户是否登录
     if (!session || !user) {
@@ -842,7 +892,10 @@ export default function PetArtGenerator() {
                         Elapsed: {Math.round((Date.now() - startTime) / 1000)} seconds
                       </div>
                       <div className="text-xs text-muted-foreground/50 mt-1">
-                        Remaining: {Math.max(0, 120 - Math.round((Date.now() - startTime) / 1000))} seconds
+                        {(Date.now() - startTime) < 180000 
+                          ? `Remaining: ~${Math.max(0, 180 - Math.round((Date.now() - startTime) / 1000))} seconds`
+                          : 'Processing... Please wait a moment longer'
+                        }
                       </div>
                     </div>
                   )}
@@ -903,7 +956,10 @@ export default function PetArtGenerator() {
                       {/* 预计剩余时间 */}
                       {startTime && (
                         <p className="text-xs text-muted-foreground">
-                          Remaining: {Math.max(0, 120 - Math.round((Date.now() - startTime) / 1000))} seconds
+                          {(Date.now() - startTime) < 180000 
+                            ? `Remaining: ~${Math.max(0, 180 - Math.round((Date.now() - startTime) / 1000))} seconds`
+                            : 'Processing... Please wait a moment longer'
+                          }
                         </p>
                       )}
                     </div>
