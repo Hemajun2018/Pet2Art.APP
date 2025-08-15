@@ -11,6 +11,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "@/providers/theme";
 import { cn } from "@/lib/utils";
 import CookieConsent from "@/components/CookieConsent";
+import Analytics from "@/components/analytics";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -80,6 +81,7 @@ export default async function RootLayout({
             <AppContextProvider>
               <ThemeProvider attribute="class" disableTransitionOnChange>
                 {children}
+                <Analytics />
                 <CookieConsent />
               </ThemeProvider>
             </AppContextProvider>

@@ -1,4 +1,9 @@
 User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
 Disallow: /*?*q=
-Disallow: /privacy-policy
-Disallow: /terms-of-service
+
+# Sitemap
+Sitemap: https://www.pet2art.app/sitemap.xml
