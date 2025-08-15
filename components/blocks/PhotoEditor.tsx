@@ -142,20 +142,17 @@ export default function PetArtGenerator() {
     // Reset progress state
     setGenerationProgress(0)
     setGenerationMessage('Preparing to generate...')
-    setStartTime(Date.now())
+    const currentStartTime = Date.now()
+    setStartTime(currentStartTime)
     
     // Simulate progress updates - 更合理的进度模拟
     // 预期3分钟完成，前2.5分钟到达85%，最后0.5分钟停留在85-90%
-    const expectedDuration = 180000 // 3分钟 = 180秒
     const updateInterval = 2000 // 每2秒更新一次
-    const updates = 150000 / updateInterval // 前2.5分钟的更新次数
-    const progressPerUpdate = 85 / updates // 每次更新的进度
     
     const progressInterval = setInterval(() => {
       setGenerationProgress(prev => {
         // 根据已经过去的时间计算应该达到的进度
-        if (!startTime) return prev
-        const elapsedTime = Date.now() - startTime
+        const elapsedTime = Date.now() - currentStartTime
         
         if (elapsedTime < 60000) {
           // 第一分钟：缓慢增长到30%
@@ -195,8 +192,7 @@ export default function PetArtGenerator() {
     
     // Update status messages - 根据进度更新消息
     const messageInterval = setInterval(() => {
-      if (!startTime) return
-      const elapsedTime = Date.now() - startTime
+      const elapsedTime = Date.now() - currentStartTime
       
       if (elapsedTime < 20000) {
         setGenerationMessage('Analyzing your pet photo...')
@@ -421,15 +417,25 @@ export default function PetArtGenerator() {
         const result = await promise
         completedCount++
         
-        // 更新进度
-        const overallProgress = (completedCount / totalCount) * 100
-        setGenerationProgress(overallProgress)
-        setGenerationMessage(`Completed ${completedCount} of ${totalCount} templates`)
-        
         // 如果生成成功，立即添加到显示列表
         if (result && result.url) {
           allGeneratedImages.push(result.url)
           setGeneratedImages([...allGeneratedImages])
+        }
+        
+        // 当所有任务完成时（无论成功或失败），立即设置为100%
+        if (completedCount === totalCount) {
+          // 清理定时器
+          clearInterval(progressInterval)
+          clearInterval(messageInterval)
+          // 立即设置为100%
+          setGenerationProgress(100)
+          const successCount = allGeneratedImages.length
+          if (successCount > 0) {
+            setGenerationMessage(`Generated ${successCount} image${successCount > 1 ? 's' : ''}!`)
+          } else {
+            setGenerationMessage('Generation completed')
+          }
         }
         
         return result
@@ -533,16 +539,16 @@ export default function PetArtGenerator() {
         toast.success(`Successfully generated all ${successfulResults.length} images!`)
       }
       
-      // Complete progress
+      // 清理定时器（先清理，避免继续更新）
+      clearInterval(progressInterval)
+      clearInterval(messageInterval)
+      
+      // Complete progress - 确保进度条到达100%
       setGenerationProgress(100)
       setGenerationMessage(`Generated ${successfulResults.length} image${successfulResults.length > 1 ? 's' : ''}!`)
       
       // 刷新积分显示
       await fetchUserCredits()
-      
-      // 清理定时器
-      clearInterval(progressInterval)
-      clearInterval(messageInterval)
       
     } catch (error) {
       // 清理定时器
