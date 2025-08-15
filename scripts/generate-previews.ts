@@ -15,6 +15,21 @@ const REFERENCE_IMAGE = path.join(__dirname, '../public/reference.png')
 
 const isDryRun = process.argv.includes('--dry-run')
 
+// 从命令行参数获取并发数，默认为8
+const getConcurrency = (): number => {
+  const concurrencyArg = process.argv.find(arg => arg.startsWith('--concurrency='))
+  if (concurrencyArg) {
+    const value = parseInt(concurrencyArg.split('=')[1])
+    if (value > 0 && value <= 20) {
+      return value
+    }
+    console.warn(`⚠️  Invalid concurrency value. Using default: 8`)
+  }
+  return 8
+}
+
+const CONCURRENCY = getConcurrency()
+
 interface MissingPreview {
   category: string
   templatePath: string
@@ -28,8 +43,9 @@ function getPreviewName(templateName: string): string {
   const nameWithoutExt = templateName.substring(0, lastDotIndex)
   const extension = templateName.substring(lastDotIndex)
   
-  const dashIndex = nameWithoutExt.indexOf(' — ')
-  const previewName = dashIndex > -1 ? nameWithoutExt.substring(0, dashIndex) : nameWithoutExt
+  // 提取下划线前的风格意象部分（如果有下划线）
+  const underscoreIndex = nameWithoutExt.indexOf('_')
+  const previewName = underscoreIndex > -1 ? nameWithoutExt.substring(0, underscoreIndex) : nameWithoutExt
   
   return `${previewName}${extension}`
 }
@@ -174,15 +190,27 @@ async function downloadAndSaveImage(imageUrl: string, savePath: string): Promise
 async function processWithRateLimit(
   items: MissingPreview[], 
   processFunc: (item: MissingPreview) => Promise<void>,
-  concurrency: number = 2,  // 恢复并发数为2
-  delayMs: number = 2000     // 恢复延迟为2秒
+  concurrency: number = 8,  // 增加并发数到8
+  delayMs: number = 3000     // 适当增加延迟到3秒，给API更多时间
 ): Promise<void> {
+  console.log(`\n🚀 Processing ${items.length} items with concurrency of ${concurrency}`)
+  
   for (let i = 0; i < items.length; i += concurrency) {
     const batch = items.slice(i, i + concurrency)
+    const batchNumber = Math.floor(i / concurrency) + 1
+    const totalBatches = Math.ceil(items.length / concurrency)
+    
+    console.log(`\n📦 Batch ${batchNumber}/${totalBatches} - Processing ${batch.length} items...`)
+    console.log(`   Items ${i + 1}-${Math.min(i + batch.length, items.length)} of ${items.length}`)
+    
+    const startTime = Date.now()
     
     await Promise.all(
       batch.map(item => processFunc(item))
     )
+    
+    const batchTime = Date.now() - startTime
+    console.log(`   ⏱️  Batch completed in ${(batchTime / 1000).toFixed(1)}s`)
     
     if (i + concurrency < items.length) {
       console.log(`\n⏳ Waiting ${delayMs}ms before next batch...`)
@@ -194,9 +222,16 @@ async function processWithRateLimit(
 async function main() {
   console.log('🎨 Pet Template Preview Generator')
   console.log('==================================')
+  console.log('\nUsage:')
+  console.log('  pnpm generate-previews              # Generate all missing previews')
+  console.log('  pnpm generate-previews:dry          # Dry run to check missing previews')
+  console.log('  pnpm generate-previews --concurrency=8  # Custom batch size (1-20)')
+  console.log(`\nCurrent settings:`)
+  console.log(`  Concurrency: ${CONCURRENCY} items per batch`)
+  console.log(`  Mode: ${isDryRun ? 'DRY RUN' : 'PRODUCTION'}`)
   
   if (isDryRun) {
-    console.log('🔍 DRY RUN MODE - No files will be generated\n')
+    console.log('\n🔍 DRY RUN MODE - No files will be generated')
   }
   
   console.log('📊 Scanning for missing previews...')
@@ -227,65 +262,90 @@ async function main() {
   }
   
   console.log('\n🚀 Starting preview generation...')
-  console.log('   (This may take a while)\n')
+  console.log(`   Total items to process: ${missingPreviews.length}`)
+  console.log(`   Batch size: ${CONCURRENCY} items concurrently`)
+  console.log(`   Estimated time: ${Math.ceil(missingPreviews.length / CONCURRENCY) * 2} minutes\n`)
   
   let successCount = 0
   let failCount = 0
+  let processedCount = 0
   const failedItems: MissingPreview[] = []
+  const startTime = Date.now()
   
   const processItem = async (item: MissingPreview) => {
+    const itemIndex = processedCount + 1
+    processedCount++
+    
     try {
-      console.log(`\n🎯 Processing: ${item.category}/${item.templateName}`)
+      console.log(`\n🎯 [${itemIndex}/${missingPreviews.length}] Processing: ${item.category}/${item.templateName}`)
       console.log(`   Generating preview...`)
       
+      const generateStartTime = Date.now()
       const imageUrl = await generatePreview(item.templatePath, REFERENCE_IMAGE)
+      const generateTime = ((Date.now() - generateStartTime) / 1000).toFixed(1)
       
-      console.log(`   ✅ Generated successfully`)
+      console.log(`   ✅ Generated successfully (${generateTime}s)`)
       console.log(`   Downloading image...`)
       
       await downloadAndSaveImage(imageUrl, item.previewPath)
       
       successCount++
-      console.log(`   ✨ Complete: ${item.previewName}`)
+      const progress = ((successCount + failCount) / missingPreviews.length * 100).toFixed(1)
+      console.log(`   ✨ Complete: ${item.previewName} | Progress: ${progress}%`)
     } catch (error) {
       failCount++
       failedItems.push(item)
-      console.error(`   ❌ Failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      const progress = ((successCount + failCount) / missingPreviews.length * 100).toFixed(1)
+      console.error(`   ❌ Failed: ${error instanceof Error ? error.message : 'Unknown error'} | Progress: ${progress}%`)
     }
   }
   
-  await processWithRateLimit(missingPreviews, processItem, 2, 2000)
+  await processWithRateLimit(missingPreviews, processItem, CONCURRENCY, 3000)
   
-  // 如果有失败的项目，尝试重新处理一次
+  // 如果有失败的项目，尝试重新处理一次（使用较小的并发数）
   if (failedItems.length > 0) {
     console.log('\n' + '='.repeat(50))
     console.log('🔁 Retrying failed items...')
-    console.log(`   Found ${failedItems.length} failed items to retry\n`)
+    console.log(`   Found ${failedItems.length} failed items to retry`)
+    console.log(`   Using reduced concurrency: ${Math.min(4, CONCURRENCY)} for retries\n`)
     
     const retryItems = [...failedItems]
     failedItems.length = 0  // 清空失败列表
+    let retrySuccessCount = 0
     
-    for (const item of retryItems) {
+    // 等待一段时间再重试
+    console.log('   ⏳ Waiting 5 seconds before retrying...')
+    await new Promise(resolve => setTimeout(resolve, 5000))
+    
+    const retryProcessItem = async (item: MissingPreview) => {
       try {
         console.log(`\n🔄 Retrying: ${item.category}/${item.templateName}`)
-        console.log(`   Waiting 5 seconds before retry...`)
-        await new Promise(resolve => setTimeout(resolve, 5000))
-        
         console.log(`   Generating preview...`)
-        const imageUrl = await generatePreview(item.templatePath, REFERENCE_IMAGE)
         
-        console.log(`   ✅ Generated successfully`)
+        const retryStartTime = Date.now()
+        const imageUrl = await generatePreview(item.templatePath, REFERENCE_IMAGE, 2) // 减少重试次数
+        const retryTime = ((Date.now() - retryStartTime) / 1000).toFixed(1)
+        
+        console.log(`   ✅ Generated successfully on retry (${retryTime}s)`)
         console.log(`   Downloading image...`)
         
         await downloadAndSaveImage(imageUrl, item.previewPath)
         
         successCount++
         failCount--
-        console.log(`   ✨ Complete: ${item.previewName}`)
+        retrySuccessCount++
+        console.log(`   ✨ Complete on retry: ${item.previewName}`)
       } catch (error) {
         failedItems.push(item)  // 仍然失败的项目重新加入列表
         console.error(`   ❌ Still failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
       }
+    }
+    
+    // 使用较小的并发数和较长的延迟进行重试
+    await processWithRateLimit(retryItems, retryProcessItem, Math.min(4, CONCURRENCY), 5000)
+    
+    if (retrySuccessCount > 0) {
+      console.log(`\n   ✅ Successfully recovered ${retrySuccessCount} items on retry`)
     }
   }
   
@@ -293,6 +353,10 @@ async function main() {
   console.log('📊 Final Report:')
   console.log(`   ✅ Successfully generated: ${successCount}`)
   console.log(`   ❌ Failed: ${failCount}`)
+  
+  const totalTime = ((Date.now() - startTime) / 1000 / 60).toFixed(1)
+  console.log(`   ⏱️  Total time: ${totalTime} minutes`)
+  console.log(`   🚀 Average speed: ${(successCount / parseFloat(totalTime)).toFixed(1)} items/minute`)
   
   if (failedItems.length > 0) {
     console.log('\n   Final failed items:')
