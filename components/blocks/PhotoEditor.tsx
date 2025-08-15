@@ -154,6 +154,7 @@ export default function PetArtGenerator() {
     const progressInterval = setInterval(() => {
       setGenerationProgress(prev => {
         // 根据已经过去的时间计算应该达到的进度
+        if (!startTime) return prev
         const elapsedTime = Date.now() - startTime
         
         if (elapsedTime < 60000) {
@@ -194,6 +195,7 @@ export default function PetArtGenerator() {
     
     // Update status messages - 根据进度更新消息
     const messageInterval = setInterval(() => {
+      if (!startTime) return
       const elapsedTime = Date.now() - startTime
       
       if (elapsedTime < 20000) {
