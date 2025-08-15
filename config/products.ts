@@ -6,15 +6,15 @@ const isProduction = process.env.NODE_ENV === 'production' && !process.env.CREEM
 export const PRODUCT_IDS = {
   basic: isProduction 
     ? 'prod_1hNuloy3XtXHKAFo8DarCd'  // 生产环境
-    : 'prod_6NRplH9ln9WA0NseVYO763', // 测试环境
+    : 'prod_1hNuloy3XtXHKAFo8DarCd', // 测试环境使用相同的产品ID
     
   pro: isProduction
     ? 'prod_TRjlY3xPCfJeyWVncQsjx'   // 生产环境
-    : 'prod_3eZKVTki7XCsNbytTawkjh', // 测试环境
+    : 'prod_TRjlY3xPCfJeyWVncQsjx', // 测试环境使用相同的产品ID
     
   credits: isProduction
     ? 'prod_3gF019zN0V1z7jGm4XM04N'  // 生产环境
-    : 'prod_27rV1Mj7rtnRh6JQ8FUkas', // 测试环境
+    : 'prod_3gF019zN0V1z7jGm4XM04N', // 测试环境使用相同的产品ID
 };
 
 export function getProductId(type: 'basic' | 'pro' | 'credits'): string {

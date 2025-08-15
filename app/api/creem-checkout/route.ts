@@ -115,31 +115,46 @@ export async function POST(req: Request) {
       return respErr("invalid creem config");
     }
 
-    const serverIdxStr = process.env.CREEM_SERVER_IDX;
-    const serverIdx = serverIdxStr ? Number(serverIdxStr) : 1; // 1: test server per template
-    const creem = new Creem({ serverIdx });
+    // 调试：打印产品ID和API密钥信息
+    console.log("Creating checkout with:");
+    console.log("- Product ID:", product_id);
+    console.log("- API Key prefix:", apiKey?.substring(0, 10) + "...");
+    console.log("- Success URL:", successUrl);
 
-    const checkout = await creem.createCheckout({
-      xApiKey: apiKey,
-      createCheckoutRequest: {
-        productId: product_id,
-        successUrl,
-        // 使用订单号作为 requestId，方便 webhook 直接定位订单
-        requestId: String(order_no),
+    // 直接使用fetch调用API，绕过SDK
+    const checkoutResponse = await fetch("https://api.creem.io/v1/checkouts", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        product_id: product_id,
+        success_url: successUrl,
+        request_id: String(order_no),
         metadata: {
           orderNo: String(order_no),
           email: user_email,
           userId: user_uuid,
           productName: product_name,
-          credits,
+          credits: String(credits),
           currency,
-          amount,
+          amount: String(amount),
           interval,
         },
-      },
+      }),
     });
 
-    return respData({ checkout_url: checkout.checkoutUrl, order_no });
+    if (!checkoutResponse.ok) {
+      const errorText = await checkoutResponse.text();
+      console.error("Creem API error:", errorText);
+      throw new Error(`Creem API error: ${errorText}`);
+    }
+
+    const checkout = await checkoutResponse.json();
+    console.log("Checkout created successfully:", checkout.id);
+
+    return respData({ checkout_url: checkout.checkout_url, order_no });
   } catch (e: any) {
     console.log("creem checkout failed: ", e);
     return respErr("checkout failed: " + e.message);

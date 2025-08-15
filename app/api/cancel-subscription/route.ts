@@ -45,9 +45,8 @@ export async function POST(req: Request) {
     if (order.sub_id) {
       try {
         // 初始化 Creem 客户端
-        const serverIdxStr = process.env.CREEM_SERVER_IDX;
-        const serverIdx = serverIdxStr ? Number(serverIdxStr) : 1;
-        const creem = new Creem({ serverIdx });
+        // 不指定 serverIdx，让 SDK 根据 API key 自动判断
+        const creem = new Creem();
         
         // 调用 Creem SDK 取消订阅
         await creem.cancelSubscription({
