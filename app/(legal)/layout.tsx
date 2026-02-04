@@ -78,7 +78,7 @@ export default function LegalLayout({
             
             {/* Footer */}
             <div className="mt-12 text-center text-sm text-base-content/60">
-              <p>© 2025 Pet2Art. All rights reserved.</p>
+              <p>© 2025 Pet2Art Operated by LOGICFLOW AI LTD</p>
               <div className="mt-4 flex items-center justify-center gap-6">
                 <a href="/privacy-policy" className="hover:text-primary transition-colors">
                   Privacy Policy
